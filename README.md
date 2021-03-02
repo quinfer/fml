@@ -72,11 +72,12 @@ ati::daily_factors %>% summary()
 
 ## Tutorials
 
-You can start the tutorials in one of two ways. First, in RStudio 1.3 or
-later, you will find the ATI tutorials listed in the “Tutorial” tab in
-the top-right pane (by default). Find a tutorial and click “Run
-Tutorial” to get started. Second, you can run any tutorial from the R
-console by typing the following line:
+**The tutorials can be run on a local machine only**. You can start the
+tutorials in one of two ways. First, in RStudio 1.3 or later, you will
+find the ATI tutorials listed in the “Tutorial” tab in the top-right
+pane (by default). Find a tutorial and click “Run Tutorial” to get
+started. Second, you can run any tutorial from the R console by typing
+the following line:
 
 ``` r
 learnr::run_tutorial("Workshop2","ati")
@@ -97,9 +98,17 @@ Template` then `Report`.
 
 ## Datasets
 
+### Top 30 ftse companies
+
 This package also includes monthly returns for the Top 30 FTSE
-companies. You can access this data by runing the following
+companies. You can access this data by running the following
 
 ``` r
 ati::ftse30_returns_mthly
+```
+
+### Daily uk asset pricing risk factors
+
+``` r
+data("daily_factors")
 ```
