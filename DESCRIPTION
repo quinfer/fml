@@ -1,0 +1,15 @@
+Package: ati
+Title: learning and teaching algorithmic trading and investment
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Barry",
+           family = "Quinn",
+           role = c("aut", "cre"),
+           email = "b.quinn@qub.ac.uk",
+           comment = c(ORCID = "0000-0002-8637-9060"))
+Description: Package uses financial machine learning illustrate modern algorithmic trading and investment practices.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1

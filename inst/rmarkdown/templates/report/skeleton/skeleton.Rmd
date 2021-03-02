@@ -1,0 +1,73 @@
+---
+title: "Untitled"
+author: "Student name"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliograph: ["refs.bib"]
+output:
+   bookdown::pdf_document2:
+     toc: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(entropy) 
+library(tidyverse)
+library(ati) # to access the pre-defined functions below
+## Total word count should be 1500 words excluding references
+## When you knitr the document the references should automatically populate at the end of the document
+```
+
+## Instructions to use this template
+
+1. Update the author and title fields in the above YAML section.
+2. Edit the `refs.bib` file to include any extra references you have. 
+3. Click `Knit` to see what the output will look like
+4 . Save the .Rmd file using the naming convention specified in class
+
+## Introduction
+
+
+This should be introduce the statement to be critiqued in the context of modern financial research practices.
+
+## Critical literature
+
+Use high-quality literature to illustrate the pros and cons of the argument. 
+
+Some examples of how to use the `.bib` to add references
+* In line `@Jensen2021` renders as Jensen (2021)
+* And `[@Jensen]` renders as (Jensen 2021)
+
+## Experimental evidence
+
+Simulate some data to illustrate how FML can reveal results where traditional econometrics fail OR vice versa.  You are free to use the lecture material as a starting point here.  For example
+
+```{r}
+# package which will do much of the heavy lifting
+set.seed(1234) # set seed for random number generation
+size=1000
+df<-tibble(x=rnorm(size),y=0*x+rnorm(size))
+bXY=numBins(nrow(df), corr=cor(df)[1,2])
+y2D=discretize2d(df$x,df$y,numBins1 = bXY,numBins2 = bXY)
+Hx=entropy(rowSums(y2D))
+Hy=entropy(colSums(y2D))
+nmi=mi.empirical(y2D)/min(Hx,Hy)
+cor(df)[1,2]->cor_coef
+```
+
+```{r, echo=FALSE, fig.height=5, fig.width=5}
+# use ggplot2 hist2d geom to extract
+ggplot(df,aes(x=x,y=y)) + 
+  geom_point() + 
+  labs(title = "y= 0x + e") + 
+  annotate("text",label=paste0("nmi=",round(nmi,4)),x=-2.5,y=3) +
+  annotate("text",label=paste0("cor_coef=",round(cor_coef,4)),x=-2.5,y=2.5)
+```
+
+## Your conclusions
+
+Summarise and state your critical assessment using any evidence you have provided in the previous sections.
+
+## Reference
+
+*This is where the citied references should appear when you render the document to a pdf*
