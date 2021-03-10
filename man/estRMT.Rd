@@ -14,7 +14,7 @@ estRMT(
 )
 }
 \arguments{
-\item{R}{xts or matrix of asset returns}
+\item{R}{xts or matrix of asset returns with columns as return series}
 
 \item{Q}{ratio of rows/size. Can be supplied externally or fit using data}
 
@@ -47,9 +47,9 @@ Finally, correlation matrix is converted to covariance matrix.
 \examples{
 \dontrun{
  data("largereturn")
- model <- estRMT(largesymdata, numEig = 0)  
-}        
-       
+ model <- estRMT(largesymdata, numEig = 0)
+}
+
 }
 \author{
 Rohit Arora
