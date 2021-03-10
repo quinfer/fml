@@ -1,4 +1,4 @@
-#' @title  Denoising of Covariance matrix using Random Matrix Theory
+#' @title  Denoising and detoning of Covariance matrix using Random Matrix Theory
 
 #'
 #' @details
@@ -33,19 +33,21 @@
 #' @param numEig number of eigenvalues that are known for variance calculation.
 #'        Default is set to 1. If numEig = 0 then variance is assumed to be 1.
 #' @param parallel boolean to use all cores of a machine.
+#' @param detone boolean to detoning the correlation matrix of the market component,
+#' where the market component is assumed to be the eigenvector with the highest eigenvalue
 #' @examples
 #' \dontrun{
 #'  data("largereturn")
 #'  model <- estRMT(largesymdata, numEig = 0)
 #' }
 #'
-#' @author Rohit Arora
+#' @author Barry Quinn
 #'
 #' @export
 #'
 estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
                    eigenTreat = c("average", "delete") , numEig=1,
-                   parallel = TRUE) {
+                   parallel = TRUE, detone= FALSE) {
   .data <- if(is.xts(R)) coredata(R) else as.matrix(R)
   T <- nrow(.data); M <- ncol(.data)
   if (T < M) stop("Does not work when T < M")
@@ -134,6 +136,22 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
     lambdas.cleaned <- c(val, rep(0,M))
     diag(sum) <- 1
     sum
+  }
+
+  if (detone) {
+    # Define them market component as first eigenvalue with the highest eigenvector
+    eigen.CC<-eigen(clean.C,symmetric=T)
+    eigenvalues_mark = eigen.CC$values[1]
+    eigenvectors_mark = eigenvectors[,1]
+    C_mark = eigenvectors_mark%*%eigenvalues_mark%*%t(eigenvectors_mark)
+    clean.C<-clean.C-C_mark
+    # convert correlation to covariance matrix and return
+    clean.S <- D^0.5 %*% clean.C %*% D^0.5
+    fit <- list(cov = clean.S, Q = Q, var = sigma.sq, eigVals = lambdas,
+                eigVals.cleaned = lambdas.cleaned, lambdascutoff = lambda.max)
+
+    class(fit) <- "RMT"
+    fit
   }
 
   # convert correlation to covariance matrix and return

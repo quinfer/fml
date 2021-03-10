@@ -2,7 +2,7 @@
 % Please edit documentation in R/RMT.R
 \name{estRMT}
 \alias{estRMT}
-\title{Denoising of Covariance matrix using Random Matrix Theory}
+\title{Denoising and detoning of Covariance matrix using Random Matrix Theory}
 \usage{
 estRMT(
   R,
@@ -10,7 +10,8 @@ estRMT(
   cutoff = c("max", "each"),
   eigenTreat = c("average", "delete"),
   numEig = 1,
-  parallel = TRUE
+  parallel = TRUE,
+  detone = FALSE
 )
 }
 \arguments{
@@ -32,9 +33,12 @@ correlation matrix are replaced with 1 to make the matrix psd.}
 Default is set to 1. If numEig = 0 then variance is assumed to be 1.}
 
 \item{parallel}{boolean to use all cores of a machine.}
+
+\item{detone}{boolean to detoning the correlation matrix of the market component,
+where the market component is assumed to be the eigenvector with the highest eigenvalue}
 }
 \description{
-Denoising of Covariance matrix using Random Matrix Theory
+Denoising and detoning of Covariance matrix using Random Matrix Theory
 }
 \details{
 This method takes in data as a matrix or an xts object. It then
@@ -52,5 +56,5 @@ Finally, correlation matrix is converted to covariance matrix.
 
 }
 \author{
-Rohit Arora
+Barry Quinn
 }
