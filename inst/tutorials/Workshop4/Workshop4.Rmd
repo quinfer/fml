@@ -1,0 +1,276 @@
+---
+title: "Workshop 4"
+subtitle: " More portfolio analytics"
+output:
+  learnr::tutorial:
+  css: ['mycssblend.css']
+description: "Learn how to optimise a portfolio in terms of portfolio theory, then then how to denoise and detone a empirical correlation matrix and build a profitable investment strategy"
+runtime: shiny_prerendered
+---
+
+```{r excercisesetup, include=FALSE}
+removals<-ls()
+rm(list=removals)
+library(learnr)
+tutorial_options(exercise.timelimit = 60)
+library(PortfolioAnalytics)
+library(tidyverse)
+library(tidyquant)
+library(ati)
+library(timetk)
+tutorial_options(exercise.eval = TRUE)
+knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
+```
+
+## Welcome
+ In the previous exercises we considered a Marcenko-Pastur function which predefined the variance parameter. A more accuracy approach is to optimise the estimate of the Marcenko-Pastur distribution from the data underlying data then adjust the covariance matrix for the noise identified by this random matrix theory, the function `estRMT()` does exactly this. 
+ 
+ 
+## `estRMT` algorithm 
+The main idea behind de-noising the covariance matrix is to eliminate the eigenvalues of the covariance matrix that are representing noise and not useful information.
+
+> Before you begin, run the following to update the `ati` package
+
+```
+remove.packages('ati')
+remotes::install_github('barryquinn1/ati')
+remove.packages('tsfe')
+remotes::install_github('barryquinn1/tsfe')
+.rs.restartR()
+```
+
+Packages used in this workshop
+```
+removals<-ls() 
+rm(list=removals)
+# Always good practice to remove all object before beginning new work
+library(PortfolioAnalytics)
+library(tidyverse)
+library(tidyquant)
+library(ati)
+library(timetk) # this may be a need package you will need to install
+knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE)
+```
+
+### Constant Residual Eigenvalue De-noising Method
+This is done by determining the maximum theoretical value of the eigenvalue of such matrix as a threshold and then setting all the calculated eigenvalues above the threshold to the same value.
+
+The function provided below for de-noising the covariance works as follows:
+
+* The given covariance matrix is transformed to the correlation matrix.
+* The eigenvalues and eigenvectors of the correlation matrix are calculated.
+*Using the Kernel Density Estimate algorithm a kernel of the eigenvalues is estimated.
+* The Marcenko-Pastur pdf is fitted to the KDE estimate using the variance as the parameter for the optimization.
+* From the obtained Marcenko-Pastur distribution, the maximum theoretical eigenvalue is calculated using the formula in [Lopez de Prado (2016)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961)
+* The eigenvalues in the set that are above the theoretical value are all set to their average value. 
+
+.blockquote[
+For example, we have a set of 5 sorted eigenvalues $(\lambda_1, \lambda_2, ....., \lambda_5)$ two of which are above the maximum theoretical value, then we set
+$$\lambda_4^{NEW}=\lambda_5^{NEW}=\frac{\lambda_4^{OLD}+\lambda_5^{OLD}}{2}$$
+Eigenvalues above the maximum theoretical value are left intact.
+$$\lambda_1^{NEW}=\lambda_1^{OLD}\\\lambda_2^{NEW}=\lambda_2^{OLD}\\\lambda_3^{NEW}=\lambda_3^{OLD}$$]
+
+* The new set of eigenvalues with the set of eigenvectors is used to obtain the new de-noised correlation matrix. $\tilde{C}$ is the de-noised correlation matrix, W is the eigenvectors matrix, and $\Lambda$ is the diagonal matrix with new eigenvalues.
+* The new correlation matrix is then transformed back to the new de-noised covariance matrix.
+
+$$\tilde{C}=W \Lambda W$$
+* To rescale $\tilde{C}$ so that the main diagonal consists of 1s the following transformation is made. This is how the final $C_{denoised}$ is obtained.
+
+$$C_{denoised}=\tilde{C}[(diag[\tilde{C}])^{1/2}(diag[\tilde{C}])^{1/2'}]^{-1}$$
+* The new correlation matrix is then transformed back to the new de-noised covariance matrix.
+
+### Learning outcomes
+
+In this tutorial, you will learn some portfolio analytics
+
+* Preprocessing data for analysis
+* Denoising real world data
+* Detoning real world data
+* Building and testing and investment strategy using the treated data
+* Infering mean from the results
+
+
+## Topic 1 preprocessing the data
+
+### Pick out top 25 companies by market value from tsfe::FTS350data
+
+A first step would be to rearrange the data to that price and market value are variables
+ 
+```{r tickers}
+tsfe::ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  group_by(ticker) %>%
+  summarise(mean_mv=mean(`Market Value`)) %>%
+  mutate(rank = min_rank(desc(mean_mv))) %>%
+  filter(rank<=25) %>%
+  select(ticker) %>% 
+  unlist(use.names = F) -> tickers
+```
+
+### Create monthly log returns for each of the 25 stocks and reshape the data for random matrix theory analysis
+
+```{r widemthreturns}
+tsfe::ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  filter(ticker %in% tickers) %>%
+  group_by(ticker) %>%
+  tq_transmute(select = Price,
+               mutate_fun = monthlyReturn) %>%
+  pivot_wider(names_from=ticker,
+              values_from=monthly.returns)->ftse_r_m
+```
+
+
+## Topic 2 Denoising
+
+### Estimating the theoretical Marcenko-Pastur distribution for real data
+**Hint:**  Look at the help file for the `estRMT()` function and estimate an *denoised* covariance matrix where the eigenvalues below the threshold are replaced with the average value.
+
+```{r estrmt}
+model<-estRMT(ftse_r_m[,-1])
+```
+
+### Estimate the covariance of the ftse returns before the denoising and compare with the model results using `heatmap()`
+
+```{r compare}
+cov_denoise<-model$cov 
+cov_raw<-cov(ftse_r_m[,-1])
+colnames(cov_denoise)<-colnames(cov_raw)
+rownames(cov_denoise)<-rownames(cov_raw)
+heatmap(cov_raw); heatmap(cov_denoise)
+```
+
+As we can see, the main diagonal hasn’t changed, but the other covariances are different. This means that the algorithm has affected those eigenvalues of the correlation matrix which have more noise associated with them.
+
+## Topic 3 Detoning
+De-noised correlation matrix from the previous methods can also be de-toned by excluding a number of first eigenvectors representing the market component. According to Prof. Marcos Lopez de Prado
+
+.blockquote[
+Financial correlation matrices usually incorporate a market component. The market component is characterized by the first eigenvector, with loadings $W_{n,1}\approx N^{-\frac{1}{2}}, n = 1, ..., N.$ Accordingly, a market component affects every item of the covariance matrix. In the context of clustering applications, it is useful to remove the market component, if it exists (a hypothesis that can be tested statistically). By removing the market component, we allow a greater portion of the correlation to be explained by components that affect specific subsets of the securities. It is similar to removing a loud tone that prevents us from hearing other sounds. The detoned correlation matrix is singular, as a result of eliminating (at least) one eigenvector. This is not a problem for clustering applications, as most approaches do not require the invertibility of the correlation matrix. Still, a detoned correlation matrix $C_{detoned}$ cannot be used directly for mean-variance portfolio optimization”*]
+
+The de-toning function works as follows:
+
+* De-toning is applied on the de-noised correlation matrix.
+* The correlation matrix representing the market component is calculated from market component eigenvectors and eigenvalues and then subtracted from the de-noised correlation matrix. This way the de-toned correlation matrix is obtained.
+
+$$\hat{C}=C_{denoised} - W_m\Lambda_mW_m^{'}$$
+
+* De-toned correlation matrix $\hat{C}$ is then rescaled so that the main diagonal consists of 1s
+
+$$C_{detoned}=\hat{C}[(diag[\hat{C}])^{1/2}(diag[\hat{C}])^{1/2'}]^{-1}$$
+
+One can apply de-toning to the covariance matrix by setting the detone parameter to True in `estRMT` function. Note that detoning will always be used with either of the denoising methods described before.
+
+### Detoning the previously denoised covariance and visualise a before and after comparison
+
+```{r comparemore}
+model1<-estRMT(ftse_r_m[,-1],detone = TRUE)
+model1$cov -> cov_detone
+colnames(cov_detone)<-colnames(cov_raw)
+rownames(cov_detone)<-rownames(cov_raw)
+
+heatmap(cov_denoise,main ="Simple Covariance");heatmap(cov_detone,main = "Detoned Covariance")
+```
+The results of de-toning are significantly different from the de-noising results. Notice how the axis labels have shifted. This indicates that the deleted market component had an effect on the covariance between elements.
+
+
+## Topic 4 portfolio evaluation of denoising
+The major workhorse of this chapter is the portfolioAnalytics-package developed by Peterson and Carl (2018).
+
+```
+portfolioAnalytics comes with an excellent introductory vignette vignette("portfolio_vignette") and includes more documents, detailing on the use of ROI-solvers vignette("ROI_vignette"), how to create custom moment functions vignette("custom_moments_objectives") and how to introduce CVaR-budgets vignette("risk_budget_optimization").
+```
+### Construct a custom moment function
+Assume no third/fourth order effects.
+
+```{r rmt-custommoment}
+custom.portfolio.moments <- function(R, portfolio) {
+  momentargs<-list()
+  momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
+  momentargs$sigma<-estRMT(R, parallel=FALSE)$cov
+   momentargs$m3 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^2)
+  momentargs$m4 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^3)
+  return(momentargs)
+}
+```
+
+### Portfolio set-up
+Use the package `PortfolioAnalytics` we will construct a portfolio with the following specification. 
+  1. No short sales are allowed. 
+  2. All cash needs to be invested at all times. 
+  3. Set the objective to maximize the quadratic utility which maximizes returns while controlling for risk. 
+  
+```{r create_xts_obj}
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+```
+
+
+```{r rmt-portfoliospec}
+pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
+# Specification 1 and 2
+pspec.lo <- add.constraint(pspec.lo, type="full_investment")
+pspec.lo <- add.constraint(pspec.lo, type="long_only")
+# Specification 3
+pspec.lo <- add.objective(portfolio=pspec.lo, type="return", name="mean")
+pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
+```
+
+
+### Backtest strategy analysis
+
+Set up and run a backtest strategy to test the difference in using a denoised covariance matrix for for portfolio optimisation
+
+```{r portanal_setup}
+suppressMessages(library(PortfolioAnalytics))
+suppressMessages(library(foreach))
+suppressMessages(library(iterators))
+suppressMessages(library(ROI))
+suppressMessages(library(ROI.plugin.quadprog))
+suppressMessages(library(ROI.plugin.glpk))
+```
+
+
+
+```{r rmt-backtesting}
+registerDoSEQ() # explicitly register a sequential parallelising backend
+opt.ordinary <- optimize.portfolio.rebalancing(
+  ftse_r_m_ts,
+  pspec.lo,
+  optimize_method="ROI",
+  rebalance_on='months', 
+  training_period=30,
+  trailing_periods=30)
+opt.rmt <- 
+  optimize.portfolio.rebalancing(ftse_r_m_ts, pspec.lo, 
+                                 optimize_method="quadprog",
+                                 momentFUN = "custom.portfolio.moments",
+                                 rebalance_on="months", 
+                                 training_period=30, 
+                                 trailing_periods=30)
+```
+
+
+### Build portfolio returns and visualise backtesting results
+
+
+```{r rmt-results}
+ordinary.wts <- na.omit(extractWeights(opt.ordinary))
+ordinary <- Return.rebalancing(R=ftse_r_m_ts, weights=ordinary.wts)
+rmt.wts <- na.omit(extractWeights(opt.rmt))
+rmt <- Return.rebalancing(R=ftse_r_m_ts, weights=rmt.wts)
+rmt.strat.rets <- merge.xts(ordinary,rmt)
+colnames(rmt.strat.rets) <- c("ordinary", "rmt")
+charts.PerformanceSummary(rmt.strat.rets,wealth.index = T, 
+                          colorset = c("red","darkgrey"), 
+                          main="Comparison of Portfolio Performance", cex.legend = 1.1, 
+                          cex.axis = 1.1, legend.loc = "topleft")
+```
+### Interpret your results
+
+
+## References
+Peterson, Brian G., and Peter Carl. 2018. PortfolioAnalytics: Portfolio Analysis, Including Numerical Methods for Optimization of Portfolios. https://github.com/braverock/PortfolioAnalytics.
+
+
