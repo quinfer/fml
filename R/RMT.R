@@ -47,7 +47,7 @@
 #'
 estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
                    eigenTreat = c("average", "delete") , numEig=1,
-                   parallel = TRUE, detone= FALSE) {
+                   parallel = TRUE, detone= FALSE,market_component=1) {
   .data <- if(is.xts(R)) coredata(R) else as.matrix(R)
   T <- nrow(.data); M <- ncol(.data)
   if (T < M) stop("Does not work when T < M")

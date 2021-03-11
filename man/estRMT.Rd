@@ -11,7 +11,8 @@ estRMT(
   eigenTreat = c("average", "delete"),
   numEig = 1,
   parallel = TRUE,
-  detone = FALSE
+  detone = FALSE,
+  market_component = 1
 )
 }
 \arguments{
