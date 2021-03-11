@@ -141,7 +141,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
   if (detone) {
     # Define them market component as first eigenvalue with the highest eigenvector
     eigen.CC<-eigen(clean.C,symmetric=T)
-    eigenvalues_mark = eigen.CC$values[1]
+    eigenvalues_mark = eigen.CC$values[1,1]
     eigenvectors_mark = eigen.CC$vectors[,1]
     C_mark = eigenvectors_mark%*%eigenvalues_mark%*%t(eigenvectors_mark)
     clean.C<-clean.C-C_mark
