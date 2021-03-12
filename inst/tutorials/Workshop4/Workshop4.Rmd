@@ -3,7 +3,8 @@ title: "Workshop 4"
 subtitle: " More portfolio analytics"
 output:
   learnr::tutorial:
-  css: ['mycssblend.css']
+    progressive: true
+    css: ['css/mycssblend.css']
 description: "Learn how to optimise a portfolio in terms of portfolio theory, then then how to denoise and detone a empirical correlation matrix and build a profitable investment strategy"
 runtime: shiny_prerendered
 ---
