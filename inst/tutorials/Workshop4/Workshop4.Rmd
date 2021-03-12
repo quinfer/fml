@@ -20,6 +20,7 @@ library(ati)
 library(timetk)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
+load('www/w4dat.RData')
 ```
 
 ## Welcome
@@ -128,8 +129,13 @@ tsfe::ftse350 %>%
 ### Estimating the theoretical Marcenko-Pastur distribution for real data
 **Hint:**  Look at the help file for the `estRMT()` function and estimate an *denoised* covariance matrix where the eigenvalues below the threshold are replaced with the average value.
 
+```{r create_xts_obj}
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+```
+
+
 ```{r estrmt}
-model<-estRMT(ftse_r_m[,-1])
+model<-estRMT(ftse_r_m_ts)
 ```
 
 ### Estimate the covariance of the ftse returns before the denoising and compare with the model results using `heatmap()`
@@ -166,7 +172,7 @@ One can apply de-toning to the covariance matrix by setting the detone parameter
 ### Detoning the previously denoised covariance and visualise a before and after comparison
 
 ```{r comparemore}
-model1<-estRMT(ftse_r_m[,-1],detone = TRUE)
+model1<-estRMT(ftse_r_m_ts,detone = TRUE)
 model1$cov -> cov_detone
 colnames(cov_detone)<-colnames(cov_raw)
 rownames(cov_detone)<-rownames(cov_raw)
@@ -202,10 +208,6 @@ Use the package `PortfolioAnalytics` we will construct a portfolio with the foll
   2. All cash needs to be invested at all times. 
   3. Set the objective to maximize the quadratic utility which maximizes returns while controlling for risk. 
   
-```{r create_xts_obj}
-ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
-```
-
 
 ```{r rmt-portfoliospec}
 pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
