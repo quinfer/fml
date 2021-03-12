@@ -18,6 +18,18 @@ library(ati)
 tutorial_options(exercise.timelimit = 60, exercise.eval=TRUE)
 ```
 
+> Before you begin, run the following to update the packages. The install.packages command may not be necessary depending on your local `R libs`.
+
+```
+remove.packages('ati')
+remotes::install_github('barryquinn1/ati')
+remove.packages('tsfe')
+remotes::install_github('barryquinn1/tsfe')
+remotes::install_github('rstudio/learnr')
+install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog"))
+.rs.restartR()
+```
+
 ## Welcome
 
 In this tutorial, you will learn some portfolio analytics
