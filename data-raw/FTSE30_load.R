@@ -3,8 +3,10 @@
 library(tidyquant)
 library(tidyverse)
 library(usethis)
-path="/Users/barry/Dropbox/Teaching/FinancialMachineLearning/FML/workshops/Top30prices.RData"
-load(path)
+load("data-raw/Top30prices.RData")
+
+use_data(Top30prices, overwrite = TRUE)
+
 
 ftse30_returns_mthly<-Top30prices %>%
   group_by(symbol) %>%
