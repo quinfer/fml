@@ -37,6 +37,8 @@ Default is set to 1. If numEig = 0 then variance is assumed to be 1.}
 
 \item{detone}{boolean to detoning the correlation matrix of the market component,
 where the market component is assumed to be the eigenvector with the highest eigenvalue}
+
+\item{market_component}{the index of the market component in the eigenvectors and eigenvalues. Defaults to 1 as eigen function automatically ranks in descending order.}
 }
 \description{
 Denoising and detoning of Covariance matrix using Random Matrix Theory

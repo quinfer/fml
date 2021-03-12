@@ -11,14 +11,13 @@
 #'
 #' @importFrom Matrix nearPD
 #' @importFrom RMTstat dmp qmp
-#' @importFrom foreach "%dopar%"
-#' @importFrom foreach registerDoSEQ
+#' @importFrom foreach foreach "%dopar%" registerDoSEQ
 #' @importFrom parallel detectCores stopCluster makeCluster clusterEvalQ clusterExport
 #' @importFrom doParallel registerDoParallel
-#' @importFrom stats cov
-#' @importFrom stats cov2cor
-#' @importFrom stats optim
-#' @importFrom stats start
+#' @importFrom stats cov cov2cor optim start
+#' @importFrom utils head
+#' @importFrom xts is.xts
+#' @importFrom zoo coredata
 #'
 #' @param  R xts or matrix of asset returns with columns as return series
 #' @param  Q ratio of rows/size. Can be supplied externally or fit using data
@@ -35,6 +34,7 @@
 #' @param parallel boolean to use all cores of a machine.
 #' @param detone boolean to detoning the correlation matrix of the market component,
 #' where the market component is assumed to be the eigenvector with the highest eigenvalue
+#' @param market_component the index of the market component in the eigenvectors and eigenvalues. Defaults to 1 as eigen function automatically ranks in descending order.
 #' @examples
 #' \dontrun{
 #'  data("largereturn")

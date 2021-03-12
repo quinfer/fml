@@ -6,6 +6,11 @@
 \usage{
 numBins(nObs, corr = NULL)
 }
+\arguments{
+\item{nObs}{number of observations}
+
+\item{corr}{the correlation for the bivariate case}
+}
 \description{
 Discretisation of a continuous variable
 }

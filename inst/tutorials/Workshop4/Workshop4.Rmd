@@ -1,6 +1,5 @@
 ---
-title: "Workshop 4"
-subtitle: " More portfolio analytics"
+title: "Workshop 4 denoised and detoned portfolio analytics"
 output:
   learnr::tutorial:
     progressive: true
@@ -10,11 +9,11 @@ runtime: shiny_prerendered
 ---
 
 ```{r excercisesetup, include=FALSE}
-removals<-ls()
-rm(list=removals)
 library(learnr)
-tutorial_options(exercise.timelimit = 60)
 library(PortfolioAnalytics)
+library(ROI)
+library(ROI.plugin.quadprog)
+registerDoSEQ()
 library(tidyverse)
 library(tidyquant)
 library(ati)
@@ -31,17 +30,19 @@ load('www/w4dat.RData')
 ## `estRMT` algorithm 
 The main idea behind de-noising the covariance matrix is to eliminate the eigenvalues of the covariance matrix that are representing noise and not useful information.
 
-> Before you begin, run the following to update the `ati` package
+> Before you begin, run the following to update the packages. The install.packages command may not be necessary depending on your local `R libs`.
 
 ```
 remove.packages('ati')
 remotes::install_github('barryquinn1/ati')
 remove.packages('tsfe')
 remotes::install_github('barryquinn1/tsfe')
+remotes::install_github('rstudio/learnr')
+install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog"))
 .rs.restartR()
 ```
 
-Packages used in this workshop
+Local set up of this workshop
 ```
 removals<-ls() 
 rm(list=removals)
@@ -51,7 +52,6 @@ library(tidyverse)
 library(tidyquant)
 library(ati)
 library(timetk) # this may be a need package you will need to install
-knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE)
 ```
 
 ### Constant Residual Eigenvalue De-noising Method
@@ -66,11 +66,11 @@ The function provided below for de-noising the covariance works as follows:
 * From the obtained Marcenko-Pastur distribution, the maximum theoretical eigenvalue is calculated using the formula in [Lopez de Prado (2016)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961)
 * The eigenvalues in the set that are above the theoretical value are all set to their average value. 
 
-.blockquote[
-For example, we have a set of 5 sorted eigenvalues $(\lambda_1, \lambda_2, ....., \lambda_5)$ two of which are above the maximum theoretical value, then we set
+
+>For example, we have a set of 5 sorted eigenvalues $(\lambda_1, \lambda_2, ....., \lambda_5)$ two of which are above the maximum theoretical value, then we set
 $$\lambda_4^{NEW}=\lambda_5^{NEW}=\frac{\lambda_4^{OLD}+\lambda_5^{OLD}}{2}$$
 Eigenvalues above the maximum theoretical value are left intact.
-$$\lambda_1^{NEW}=\lambda_1^{OLD}\\\lambda_2^{NEW}=\lambda_2^{OLD}\\\lambda_3^{NEW}=\lambda_3^{OLD}$$]
+$$\lambda_1^{NEW}=\lambda_1^{OLD}\\\lambda_2^{NEW}=\lambda_2^{OLD}\\\lambda_3^{NEW}=\lambda_3^{OLD}$$
 
 * The new set of eigenvalues with the set of eigenvectors is used to obtain the new de-noised correlation matrix. $\tilde{C}$ is the de-noised correlation matrix, W is the eigenvectors matrix, and $\Lambda$ is the diagonal matrix with new eigenvalues.
 * The new correlation matrix is then transformed back to the new de-noised covariance matrix.
@@ -154,8 +154,8 @@ As we can see, the main diagonal hasn’t changed, but the other covariances are
 ## Topic 3 Detoning
 De-noised correlation matrix from the previous methods can also be de-toned by excluding a number of first eigenvectors representing the market component. According to Prof. Marcos Lopez de Prado
 
-.blockquote[
-Financial correlation matrices usually incorporate a market component. The market component is characterized by the first eigenvector, with loadings $W_{n,1}\approx N^{-\frac{1}{2}}, n = 1, ..., N.$ Accordingly, a market component affects every item of the covariance matrix. In the context of clustering applications, it is useful to remove the market component, if it exists (a hypothesis that can be tested statistically). By removing the market component, we allow a greater portion of the correlation to be explained by components that affect specific subsets of the securities. It is similar to removing a loud tone that prevents us from hearing other sounds. The detoned correlation matrix is singular, as a result of eliminating (at least) one eigenvector. This is not a problem for clustering applications, as most approaches do not require the invertibility of the correlation matrix. Still, a detoned correlation matrix $C_{detoned}$ cannot be used directly for mean-variance portfolio optimization”*]
+
+>Financial correlation matrices usually incorporate a market component. The market component is characterized by the first eigenvector, with loadings $W_{n,1}\approx N^{-\frac{1}{2}}, n = 1, ..., N.$ Accordingly, a market component affects every item of the covariance matrix. In the context of clustering applications, it is useful to remove the market component, if it exists (a hypothesis that can be tested statistically). By removing the market component, we allow a greater portion of the correlation to be explained by components that affect specific subsets of the securities. It is similar to removing a loud tone that prevents us from hearing other sounds. The detoned correlation matrix is singular, as a result of eliminating (at least) one eigenvector. This is not a problem for clustering applications, as most approaches do not require the invertibility of the correlation matrix. Still, a detoned correlation matrix $C_{detoned}$ cannot be used directly for mean-variance portfolio optimization”*
 
 The de-toning function works as follows:
 
@@ -183,16 +183,14 @@ heatmap(cov_denoise,main ="Simple Covariance");heatmap(cov_detone,main = "Detone
 The results of de-toning are significantly different from the de-noising results. Notice how the axis labels have shifted. This indicates that the deleted market component had an effect on the covariance between elements.
 
 
-## Topic 4 portfolio evaluation of denoising
-The major workhorse of this chapter is the portfolioAnalytics-package developed by Peterson and Carl (2018).
+## Topic 4 backtest analysis of denoising
 
-```
-portfolioAnalytics comes with an excellent introductory vignette vignette("portfolio_vignette") and includes more documents, detailing on the use of ROI-solvers vignette("ROI_vignette"), how to create custom moment functions vignette("custom_moments_objectives") and how to introduce CVaR-budgets vignette("risk_budget_optimization").
-```
+The major workhorse of this chapter is the `portfolioAnalytics`package developed by Peterson and Carl (2018).
+
 ### Construct a custom moment function
 Assume no third/fourth order effects.
 
-```{r rmt-custommoment}
+```{r rmtcustommoment}
 custom.portfolio.moments <- function(R, portfolio) {
   momentargs<-list()
   momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
@@ -210,7 +208,7 @@ Use the package `PortfolioAnalytics` we will construct a portfolio with the foll
   3. Set the objective to maximize the quadratic utility which maximizes returns while controlling for risk. 
   
 
-```{r rmt-portfoliospec}
+```{r rmtportfoliospec}
 pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
 # Specification 1 and 2
 pspec.lo <- add.constraint(pspec.lo, type="full_investment")
@@ -220,58 +218,66 @@ pspec.lo <- add.objective(portfolio=pspec.lo, type="return", name="mean")
 pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
 ```
 
+### solver backend
 
-### Backtest strategy analysis
-
-Set up and run a backtest strategy to test the difference in using a denoised covariance matrix for for portfolio optimisation
-
-```{r portanal_setup}
-suppressMessages(library(PortfolioAnalytics))
-suppressMessages(library(foreach))
-suppressMessages(library(iterators))
-suppressMessages(library(ROI))
-suppressMessages(library(ROI.plugin.quadprog))
-suppressMessages(library(ROI.plugin.glpk))
+```
+library(ROI)
+library(ROI.plugin.quadprog)
+registerDoSEQ() 
 ```
 
+### Backtest strategy analysis run
 
-
-```{r rmt-backtesting}
-registerDoSEQ() # explicitly register a sequential parallelising backend
+```{r ordinaryport}
 opt.ordinary <- optimize.portfolio.rebalancing(
-  ftse_r_m_ts,
-  pspec.lo,
+  ftse_r_m_ts,pspec.lo, 
   optimize_method="ROI",
-  rebalance_on='months', 
+  rebalance_on='months',
   training_period=30,
   trailing_periods=30)
-opt.rmt <- 
-  optimize.portfolio.rebalancing(ftse_r_m_ts, pspec.lo, 
-                                 optimize_method="quadprog",
-                                 momentFUN = "custom.portfolio.moments",
-                                 rebalance_on="months", 
-                                 training_period=30, 
-                                 trailing_periods=30)
+```
+
+```{r rmtport}
+opt.rmt <-optimize.portfolio.rebalancing(
+  ftse_r_m_ts, pspec.lo,
+  optimize_method="ROI",
+  momentFUN = "custom.portfolio.moments",
+  rebalance_on="months",
+  training_period=30,
+  trailing_periods=30)
 ```
 
 
-### Build portfolio returns and visualise backtesting results
+### Backtest results analysis
 
-
-```{r rmt-results}
+```{r rmtresults1}
 ordinary.wts <- na.omit(extractWeights(opt.ordinary))
-ordinary <- Return.rebalancing(R=ftse_r_m_ts, weights=ordinary.wts)
 rmt.wts <- na.omit(extractWeights(opt.rmt))
-rmt <- Return.rebalancing(R=ftse_r_m_ts, weights=rmt.wts)
+```
+
+
+```{r rmtresults2}
+ordinary <- Return.rebalancing(R=ftse_r_m_ts,weights=ordinary.wts)
+rmt <- Return.rebalancing(R=ftse_r_m_ts,weights=rmt.wts)
 rmt.strat.rets <- merge.xts(ordinary,rmt)
 colnames(rmt.strat.rets) <- c("ordinary", "rmt")
-charts.PerformanceSummary(rmt.strat.rets,wealth.index = T, 
-                          colorset = c("red","darkgrey"), 
-                          main="Comparison of Portfolio Performance", cex.legend = 1.1, 
-                          cex.axis = 1.1, legend.loc = "topleft")
 ```
+
+Chart the results
+```{r chart}
+charts.PerformanceSummary(rmt.strat.rets,
+                          wealth.index = T,
+                          colorset = c("red","darkgrey"),
+                          main="Comparison of Portfolio Performance",cex.legend = 1.1,cex.axis = 1.1,legend.loc = "topleft")
+
+```
+
+
 ### Interpret your results
 
+```{r inference}
+print("There is clear evidence that a denoised portfolio which is rebalanced monthly performs much better than a portfolio which is optimised on the ordinary returns. While both cumulative returns fall a similar time series path, the denoised portfolio returns experience much less drawdown than the ordinary returns portfolio.")
+```
 
 ## References
 Peterson, Brian G., and Peter Carl. 2018. PortfolioAnalytics: Portfolio Analysis, Including Numerical Methods for Optimization of Portfolios. https://github.com/braverock/PortfolioAnalytics.

@@ -1,5 +1,7 @@
 #' @export
 #' @title  Discretisation of a continuous variable
+#' @param nObs number of observations
+#' @param corr the correlation for the bivariate case
 numBins<-function(nObs,corr=NULL){
   #Optimal
   if (is.null(corr)) {
