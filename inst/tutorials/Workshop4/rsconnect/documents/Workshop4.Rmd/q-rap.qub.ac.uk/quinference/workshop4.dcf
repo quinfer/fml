@@ -1,0 +1,13 @@
+name: workshop4
+title: Workshop4
+username: quinference
+account: quinference
+server: q-rap.qub.ac.uk
+hostUrl: https://q-rap.qub.ac.uk/__api__
+appId: 29
+bundleId: 84
+url: https://q-rap.qub.ac.uk/content/29/
+when: 1615565262.76647
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Workshop4.html|Workshop4_files

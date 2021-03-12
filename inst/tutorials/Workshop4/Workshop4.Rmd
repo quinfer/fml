@@ -2,7 +2,6 @@
 title: "Workshop 4 denoised and detoned portfolio analytics"
 output:
   learnr::tutorial:
-    progressive: true
     css: ['css/mycssblend.css']
 description: "Learn how to optimise a portfolio in terms of portfolio theory, then then how to denoise and detone a empirical correlation matrix and build a profitable investment strategy"
 runtime: shiny_prerendered
