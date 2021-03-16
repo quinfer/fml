@@ -17,9 +17,46 @@ library(tidyverse)
 library(tidyquant)
 library(ati)
 library(timetk)
+library(tsfe)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
 load('www/w4dat.RData')
+# set up
+```
+
+```{r set-up,eval=FALSE,include=FALSE}
+tsfe::ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  group_by(ticker) %>%
+  summarise(mean_mv=mean(`Market Value`)) %>%
+  mutate(rank = min_rank(desc(mean_mv))) %>%
+  filter(rank<=25) %>%
+  select(ticker) %>% 
+  unlist(use.names = F) -> tickers
+tsfe::ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  filter(ticker %in% tickers) %>%
+  group_by(ticker) %>%
+  tq_transmute(select = Price,
+               mutate_fun = monthlyReturn) %>%
+  pivot_wider(names_from=ticker,
+              values_from=monthly.returns)->ftse_r_m
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+model<-estRMT(ftse_r_m_ts)
+model1<-estRMT(ftse_r_m_ts,detone = TRUE)
+model1$cov -> cov_detone
+colnames(cov_detone)<-colnames(cov_raw)
+rownames(cov_detone)<-rownames(cov_raw)
+custom.portfolio.moments <- function(R, portfolio) {
+  momentargs<-list()
+  momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
+  momentargs$sigma<-estRMT(R, parallel=FALSE)$cov
+   momentargs$m3 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^2)
+  momentargs$m4 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^3)
+  return(momentargs)
+}
 ```
 
 ## Welcome
