@@ -20,11 +20,11 @@ library(timetk)
 library(tsfe)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
-load('www/w4dat.RData')
+#load('www/w4dat.RData')
 # set up
 ```
 
-```{r set-up,eval=FALSE,include=FALSE}
+```{r set-up,include=FALSE}
 tsfe::ftse350 %>%
   select(-Name) %>%
   spread(variable,value) %>%
@@ -47,6 +47,7 @@ ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 model<-estRMT(ftse_r_m_ts)
 model1<-estRMT(ftse_r_m_ts,detone = TRUE)
 model1$cov -> cov_detone
+cov_raw<-cov(ftse_r_m[,-1])
 colnames(cov_detone)<-colnames(cov_raw)
 rownames(cov_detone)<-rownames(cov_raw)
 custom.portfolio.moments <- function(R, portfolio) {
