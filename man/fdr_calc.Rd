@@ -25,5 +25,5 @@ when give the true probability of a positive results, the significance level,
 ,the false negative rate (Type II error) and the number of trails.
 }
 \examples{
-fdr(0.01,beta=0.4,trails=10000)
+fdr_calc(0.01,beta=0.4,trails=10000)
 }

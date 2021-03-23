@@ -8,12 +8,12 @@
 #' @param alpha double level of significance
 #' @param beta double Type || error
 #' @param trails integer No of trails
-#'
+#' @importFrom tibble tibble
 #' @return tibble
 #' @export
 #'
 #' @examples
-#' fdr(0.01,beta=0.4,trails=10000)
+#' fdr_calc(0.01,beta=0.4,trails=10000)
 fdr_calc <- function(ground_truth,alpha=0.05,beta,trails) {
   theta=ground_truth/(1-ground_truth)
   recall=1-beta
