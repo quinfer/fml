@@ -7,13 +7,24 @@
 getExpectedMaxSR(nTrails, meanSR, stdSR)
 }
 \arguments{
-\item{stdSR}{}
+\item{nTrails}{vector a numeric vector containing the number of trails}
+
+\item{meanSR}{mean of the Sharpe ratio of the null false strategy}
+
+\item{stdSR}{standard deviation of the Sharpe ratio of the null false strategy}
 }
 \value{
-
+vector
 }
 \description{
-Calculcate the theoretical Maximum Sharpe Ratio according to the False Discovery theorem first proposed by Bailey et al. 2014.
+Calculate the theoretical Maximum Sharpe Ratio according
+to the False Discovery theorem first proposed
+by Bailey et al. 2014. Its returns values of
+the expected maximum Sharpe ratio controlling for the
+selection bias under multiple testing (SBuMT).
+}
+\examples{
+getExpectedMaxSR(nTrails=1:100,meanSR=0,stdSR=1)
 }
 \references{
 Bailey, D., J. Borwein, M. López de Prado, and J. Zhu 2014: “Pseudo- mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance.” Notices of the American Mathematical Society, Vol. 61, No. 5, pp. 458–471. Available at http://ssrn.com/abstract=2308659
