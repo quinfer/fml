@@ -2,6 +2,7 @@
 
 S3method(plot,RMT)
 export(estRMT)
+export(fdr_calc)
 export(mp_pdf)
 export(numBins)
 importFrom(Matrix,nearPD)
