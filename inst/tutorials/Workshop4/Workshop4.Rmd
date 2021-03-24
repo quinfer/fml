@@ -7,6 +7,7 @@ description: "Learn how to optimise a portfolio in terms of portfolio theory, th
 runtime: shiny_prerendered
 ---
 
+## Set up code
 ```{r excercisesetup, include=FALSE}
 library(learnr)
 library(PortfolioAnalytics)
@@ -19,6 +20,8 @@ library(timetk)
 library(tsfe)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
+library(foreach)
+registerDoSEQ()
 
 # Data and covariance objects
 tsfe::ftse350 %>%
@@ -30,6 +33,7 @@ tsfe::ftse350 %>%
   filter(rank<=25) %>%
   select(ticker) %>% 
   unlist(use.names = F) -> tickers
+
 tsfe::ftse350 %>%
   select(-Name) %>%
   spread(variable,value) %>%
@@ -63,13 +67,16 @@ pspec.lo <- add.constraint(pspec.lo, type="long_only")
 # Specification 3
 pspec.lo <- add.objective(portfolio=pspec.lo, type="return", name="mean")
 pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
-foreach::registerDoSEQ()
+
+## Portfolio optimisation
+registerDoSEQ()
 opt.ordinary <- optimize.portfolio.rebalancing(
   ftse_r_m_ts,pspec.lo, 
   optimize_method="ROI",
   rebalance_on='months',
   training_period=30,
   trailing_periods=30)
+
 opt.rmt <-optimize.portfolio.rebalancing(
   ftse_r_m_ts, pspec.lo,
   optimize_method="ROI",
@@ -77,6 +84,8 @@ opt.rmt <-optimize.portfolio.rebalancing(
   rebalance_on="months",
   training_period=30,
   trailing_periods=30)
+
+## Backtest
 ordinary.wts <- na.omit(extractWeights(opt.ordinary))
 rmt.wts <- na.omit(extractWeights(opt.rmt))
 ordinary <- Return.rebalancing(R=ftse_r_m_ts,weights=ordinary.wts)
@@ -85,13 +94,25 @@ rmt.strat.rets <- merge.xts(ordinary,rmt)
 colnames(rmt.strat.rets) <- c("ordinary", "rmt")
 ```
 
-## Welcome
- In the previous exercises we considered a Marcenko-Pastur function which predefined the variance parameter. A more accuracy approach is to optimise the estimate of the Marcenko-Pastur distribution from the data underlying data then adjust the covariance matrix for the noise identified by this random matrix theory, the function `estRMT()` does exactly this. 
- 
- 
-## `estRMT` algorithm 
-The main idea behind de-noising the covariance matrix is to eliminate the eigenvalues of the covariance matrix that are representing noise and not useful information.
-
+### local set up
+```
+removals<-ls() 
+rm(list=removals)
+# Always good practice to remove all object before beginning new work
+library(learnr)
+library(PortfolioAnalytics)
+library(ROI)
+library(ROI.plugin.quadprog)
+library(tidyverse)
+library(tidyquant)
+library(ati)
+library(timetk)
+library(tsfe)
+tutorial_options(exercise.eval = TRUE)
+knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
+library(foreach)
+registerDoSEQ()
+```
 > Before you begin, run the following to update the packages. The install.packages command may not be necessary depending on your local `R libs`.
 
 ```
@@ -104,17 +125,12 @@ install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog")
 .rs.restartR()
 ```
 
-Local set up of this workshop
-```
-removals<-ls() 
-rm(list=removals)
-# Always good practice to remove all object before beginning new work
-library(PortfolioAnalytics)
-library(tidyverse)
-library(tidyquant)
-library(ati)
-library(timetk) # this may be a need package you will need to install
-```
+## Welcome
+ In the previous exercises we considered a Marcenko-Pastur function which predefined the variance parameter. A more accuracy approach is to optimise the estimate of the Marcenko-Pastur distribution from the data underlying data then adjust the covariance matrix for the noise identified by this random matrix theory, the function `estRMT()` does exactly this. 
+ 
+## `estRMT` algorithm 
+The main idea behind de-noising the covariance matrix is to eliminate the eigenvalues of the covariance matrix that are representing noise and not useful information.
+
 
 ### Constant Residual Eigenvalue De-noising Method
 This is done by determining the maximum theoretical value of the eigenvalue of such matrix as a threshold and then setting all the calculated eigenvalues above the threshold to the same value.
@@ -285,12 +301,14 @@ pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
 ```
 library(ROI)
 library(ROI.plugin.quadprog)
+library(foreach)
 foreach::registerDoSEQ() 
 ```
 
 ### Backtest strategy analysis run
 
 ```{r ordinaryport}
+registerDoSEQ()
 opt.ordinary <- optimize.portfolio.rebalancing(
   ftse_r_m_ts,pspec.lo, 
   optimize_method="ROI",
@@ -300,13 +318,16 @@ opt.ordinary <- optimize.portfolio.rebalancing(
 ```
 
 ```{r rmtport}
-opt.rmt <-optimize.portfolio.rebalancing(
+registerDoSEQ()
+system.time(
+  opt.rmt <-optimize.portfolio.rebalancing(
   ftse_r_m_ts, pspec.lo,
   optimize_method="ROI",
   momentFUN = "custom.portfolio.moments",
   rebalance_on="months",
   training_period=30,
   trailing_periods=30)
+)
 ```
 
 
