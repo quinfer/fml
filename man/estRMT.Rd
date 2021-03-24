@@ -26,7 +26,7 @@ row/size. Individual cutoff for each eigenvalue is calculated and used
 for filteration.}
 
 \item{eigenTreat}{takes 2 values, average/delete. If average then the noisy
-eigenvalues are averged and each value is replaced by average. If delete
+eigenvalues are averaged and each value is replaced by average. If delete
 then noisy eigenvalues are ignored and the diagonal entries of the
 correlation matrix are replaced with 1 to make the matrix psd.}
 

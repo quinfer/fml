@@ -4,7 +4,7 @@
 \alias{getExpectedMaxSR}
 \title{Expected Maximum Sharpe Ratio}
 \usage{
-getExpectedMaxSR(nTrails, meanSR, stdSR)
+getExpectedMaxSR(nTrails, meanSR = 0, stdSR = 1)
 }
 \arguments{
 \item{nTrails}{double the number of trails (note that 1 trail will produce a -Inf results)}
@@ -24,7 +24,7 @@ the expected maximum Sharpe ratio controlling for the
 selection bias under multiple testing (SBuMT).
 }
 \examples{
-getExpectedMaxSR(nTrails=10,meanSR=0,stdSR=1)
+getExpectedMaxSR(nTrails=100)
 }
 \references{
 Bailey, D., J. Borwein, M. López de Prado, and J. Zhu 2014: “Pseudo- mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance.” Notices of the American Mathematical Society, Vol. 61, No. 5, pp. 458–471. Available at http://ssrn.com/abstract=2308659

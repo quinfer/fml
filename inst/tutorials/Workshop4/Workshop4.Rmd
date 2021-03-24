@@ -6,8 +6,7 @@ output:
 description: "Learn how to optimise a portfolio in terms of portfolio theory, then then how to denoise and detone a empirical correlation matrix and build a profitable investment strategy"
 runtime: shiny_prerendered
 ---
-
-## Set up code
+Set up code
 ```{r excercisesetup, include=FALSE}
 library(learnr)
 library(PortfolioAnalytics)
@@ -17,81 +16,9 @@ library(tidyverse)
 library(tidyquant)
 library(ati)
 library(timetk)
-library(tsfe)
 tutorial_options(exercise.eval = TRUE)
-knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
+knitr::opts_chunk$set(error = TRUE,warning=FALSE)
 library(foreach)
-registerDoSEQ()
-
-# Data and covariance objects
-tsfe::ftse350 %>%
-  select(-Name) %>%
-  spread(variable,value) %>%
-  group_by(ticker) %>%
-  summarise(mean_mv=mean(`Market Value`)) %>%
-  mutate(rank = min_rank(desc(mean_mv))) %>%
-  filter(rank<=25) %>%
-  select(ticker) %>% 
-  unlist(use.names = F) -> tickers
-
-tsfe::ftse350 %>%
-  select(-Name) %>%
-  spread(variable,value) %>%
-  filter(ticker %in% tickers) %>%
-  group_by(ticker) %>%
-  tq_transmute(select = Price,
-               mutate_fun = monthlyReturn) %>%
-  pivot_wider(names_from=ticker,
-              values_from=monthly.returns)->ftse_r_m
-ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
-model<-estRMT(ftse_r_m_ts)
-model1<-estRMT(ftse_r_m_ts,detone = TRUE)
-model1$cov -> cov_detone
-cov_raw<-cov(ftse_r_m[,-1])
-colnames(cov_detone)<-colnames(cov_raw)
-rownames(cov_detone)<-rownames(cov_raw)
-
-# Portfolio objects
-custom.portfolio.moments <- function(R, portfolio) {
-  momentargs<-list()
-  momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
-  momentargs$sigma<-estRMT(R, parallel=FALSE)$cov
-   momentargs$m3 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^2)
-  momentargs$m4 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^3)
-  return(momentargs)
-}
-pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
-# Specification 1 and 2
-pspec.lo <- add.constraint(pspec.lo, type="full_investment")
-pspec.lo <- add.constraint(pspec.lo, type="long_only")
-# Specification 3
-pspec.lo <- add.objective(portfolio=pspec.lo, type="return", name="mean")
-pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
-
-## Portfolio optimisation
-registerDoSEQ()
-opt.ordinary <- optimize.portfolio.rebalancing(
-  ftse_r_m_ts,pspec.lo, 
-  optimize_method="ROI",
-  rebalance_on='months',
-  training_period=30,
-  trailing_periods=30)
-
-opt.rmt <-optimize.portfolio.rebalancing(
-  ftse_r_m_ts, pspec.lo,
-  optimize_method="ROI",
-  momentFUN = "custom.portfolio.moments",
-  rebalance_on="months",
-  training_period=30,
-  trailing_periods=30)
-
-## Backtest
-ordinary.wts <- na.omit(extractWeights(opt.ordinary))
-rmt.wts <- na.omit(extractWeights(opt.rmt))
-ordinary <- Return.rebalancing(R=ftse_r_m_ts,weights=ordinary.wts)
-rmt <- Return.rebalancing(R=ftse_r_m_ts,weights=rmt.wts)
-rmt.strat.rets <- merge.xts(ordinary,rmt)
-colnames(rmt.strat.rets) <- c("ordinary", "rmt")
 ```
 
 ### local set up
@@ -107,7 +34,6 @@ library(tidyverse)
 library(tidyquant)
 library(ati)
 library(timetk)
-library(tsfe)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
 library(foreach)
@@ -118,8 +44,6 @@ registerDoSEQ()
 ```
 remove.packages('ati')
 remotes::install_github('barryquinn1/ati')
-remove.packages('tsfe')
-remotes::install_github('barryquinn1/tsfe')
 remotes::install_github('rstudio/learnr')
 install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog"))
 .rs.restartR()
@@ -175,9 +99,23 @@ In this tutorial, you will learn some portfolio analytics
 ### Pick out top 25 companies by market value from tsfe::FTS350data
 
 A first step would be to rearrange the data to that price and market value are variables
+```{r tickers-setup}
+# Data and covariance objects
+ftse350<-ati::ftse350 
+ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  group_by(ticker) %>%
+  summarise(mean_mv=mean(`Market Value`)) %>%
+  mutate(rank = min_rank(desc(mean_mv))) %>%
+  filter(rank<=25) %>%
+  select(ticker) %>% 
+  unlist(use.names = F) -> tickers
+```
+
  
-```{r tickers}
-tsfe::ftse350 %>%
+```{r tickers, exercise=TRUE, exercise.setup="tickers-setup"}
+ftse350 %>%
   select(-Name) %>%
   spread(variable,value) %>%
   group_by(ticker) %>%
@@ -190,8 +128,8 @@ tsfe::ftse350 %>%
 
 ### Create monthly log returns for each of the 25 stocks and reshape the data for random matrix theory analysis
 
-```{r widemthreturns}
-tsfe::ftse350 %>%
+```{r wide-mth-returns,exercise=TRUE,exercise.setup="tickers-setup"}
+ftse350 %>%
   select(-Name) %>%
   spread(variable,value) %>%
   filter(ticker %in% tickers) %>%
@@ -208,18 +146,28 @@ tsfe::ftse350 %>%
 ### Estimating the theoretical Marcenko-Pastur distribution for real data
 **Hint:**  Look at the help file for the `estRMT()` function and estimate an *denoised* covariance matrix where the eigenvalues below the threshold are replaced with the average value.
 
-```{r create_xts_obj}
+```{r create-xts-obj,exercise=TRUE,exercise.setup="wide-mth-returns"}
 ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 ```
 
 
-```{r estrmt}
+```{r estrmt,exercise=TRUE,exercise.setup="create-xts-obj"}
 model<-estRMT(ftse_r_m_ts)
 ```
 
 ### Estimate the covariance of the ftse returns before the denoising and compare with the model results using `heatmap()`
 
-```{r compare}
+```{r compare-setup}
+ati::
+  group_by(ticker) %>%
+  tq_transmute(select = Price,
+               mutate_fun = monthlyReturn) %>%
+  pivot_wider(names_from=ticker,
+              values_from=monthly.returns)->ftse_r_m
+```
+
+
+```{r compare,exercise=TRUE,exercise.setup="estrmt"}
 cov_denoise<-model$cov 
 cov_raw<-cov(ftse_r_m[,-1])
 colnames(cov_denoise)<-colnames(cov_raw)
@@ -230,7 +178,7 @@ heatmap(cov_raw); heatmap(cov_denoise)
 As we can see, the main diagonal hasn’t changed, but the other covariances are different. This means that the algorithm has affected those eigenvalues of the correlation matrix which have more noise associated with them.
 
 ## Topic 3 Detoning
-De-noised correlation matrix from the previous methods can also be de-toned by excluding a number of first eigenvectors representing the market component. According to Prof. Marcos Lopez de Prado
+De-noised correlation matrix from the previous methods can also be de-toned by excluding a number of first eigenvectors representing the market component. According to Marcos Lopez de Prado (2020)
 
 
 >Financial correlation matrices usually incorporate a market component. The market component is characterized by the first eigenvector, with loadings $W_{n,1}\approx N^{-\frac{1}{2}}, n = 1, ..., N.$ Accordingly, a market component affects every item of the covariance matrix. In the context of clustering applications, it is useful to remove the market component, if it exists (a hypothesis that can be tested statistically). By removing the market component, we allow a greater portion of the correlation to be explained by components that affect specific subsets of the securities. It is similar to removing a loud tone that prevents us from hearing other sounds. The detoned correlation matrix is singular, as a result of eliminating (at least) one eigenvector. This is not a problem for clustering applications, as most approaches do not require the invertibility of the correlation matrix. Still, a detoned correlation matrix $C_{detoned}$ cannot be used directly for mean-variance portfolio optimization”*
@@ -250,7 +198,21 @@ One can apply de-toning to the covariance matrix by setting the detone parameter
 
 ### Detoning the previously denoised covariance and visualise a before and after comparison
 
-```{r comparemore}
+```{r compare-detone-setup}
+ftse350 %>%
+  select(-Name) %>%
+  spread(variable,value) %>%
+  filter(ticker %in% tickers) %>%
+  group_by(ticker) %>%
+  tq_transmute(select = Price,
+               mutate_fun = monthlyReturn) %>%
+  pivot_wider(names_from=ticker,
+              values_from=monthly.returns)->ftse_r_m
+cov_raw<-cov(ftse_r_m[,-1])
+```
+
+
+```{r compare-detone,exercise=TRUE,exercise-setup="create-xts-obj"}
 model1<-estRMT(ftse_r_m_ts,detone = TRUE)
 model1$cov -> cov_detone
 colnames(cov_detone)<-colnames(cov_raw)

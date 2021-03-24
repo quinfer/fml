@@ -26,7 +26,7 @@
 #'          row/size. Individual cutoff for each eigenvalue is calculated and used
 #'          for filteration.
 #' @param eigenTreat takes 2 values, average/delete. If average then the noisy
-#'        eigenvalues are averged and each value is replaced by average. If delete
+#'        eigenvalues are averaged and each value is replaced by average. If delete
 #'        then noisy eigenvalues are ignored and the diagonal entries of the
 #'        correlation matrix are replaced with 1 to make the matrix psd.
 #' @param numEig number of eigenvalues that are known for variance calculation.
@@ -49,7 +49,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
                    eigenTreat = c("average", "delete") , numEig=1,
                    parallel = TRUE, detone= FALSE,market_component=1) {
   .data <- if(is.xts(R)) coredata(R) else as.matrix(R)
-  T <- nrow(.data); M <- ncol(.data)
+  T <- nrow(.data); M <- ncol(.data); Nams<-colnames(.data)
   if (T < M) stop("Does not work when T < M")
 
   if(!is.na(Q)) if(Q < 1) stop("Does not work for Q<1")
@@ -137,7 +137,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
     diag(sum) <- 1
     sum
   }
-
+colnames(clean.C)<-Nams
   if (detone) {
     # Define them market component as first eigenvalue with the highest eigenvector
     eigen.CC<-eigen(clean.C,symmetric=T)
@@ -147,6 +147,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
     clean.C<-C-C_mark
     # convert correlation to covariance matrix and return
     clean.S <- D^0.5 %*% clean.C %*% D^0.5
+    colnames(clean.C)<-Nams
     fit <- list(cov = clean.S, Q = Q, var = sigma.sq, eigVals = lambdas,
                 eigVals.cleaned = lambdas.cleaned, lambdascutoff = lambda.max)
     class(fit) <- "RMT"
