@@ -22,9 +22,8 @@ tibble
 Simulates the distribution of the expected Maximum Sharpe ratio for a set number of trails
 }
 \examples{
-library(scales)
 sr1<-getDistExpectedMaxSR(nSims=100,nTrails=2:100)
-plot(y=sr1$`Max{SR}`,x=sr1$nTrails, col = alpha('red', 0.4), pch=16)
+plot(y=sr1$`Max{SR}`,x=sr1$nTrails, col = scales::alpha('red', 0.4), pch=16)
 lines(lowess(x=sr1$nTrails,sr1$`Max{SR}`),col="blue")
 }
 \references{

@@ -1,6 +1,6 @@
 Package: ati
 Title: learning and teaching algorithmic trading and investment
-Version: 0.0.0.9000
+Version: 0.0.0.9005
 Authors@R: 
     person(given = "Barry",
            family = "Quinn",
@@ -13,7 +13,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Imports: ggplot2,Matrix,RMTstat,doParallel,foreach,matlab,xts,zoo,tibble,dplyr
-Suggests: learnr,tsfe
+Imports: ggplot2,Matrix,RMTstat,doParallel,foreach,matlab,xts,zoo,tibble,dplyr,scales
+Suggests: learnr, tidyverse
 Depends: 
     R (>= 2.10)

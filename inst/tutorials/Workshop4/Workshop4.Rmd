@@ -254,19 +254,37 @@ foreach::registerDoSEQ()
 
 ### Backtest strategy analysis run
 
+```{r optimise-ports-setup}
+ati::ftse25_rtns_mthly->ftse_r_m 
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+custom.portfolio.moments <- function(R, portfolio) {
+  momentargs<-list()
+  momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
+  momentargs$sigma<-estRMT(R, parallel=FALSE)$cov
+   momentargs$m3 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^2)
+  momentargs$m4 <- matrix(0, nrow=ncol(R), ncol=ncol(R)^3)
+  return(momentargs)
+}
+pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
+# Specification 1 and 2
+pspec.lo <- add.constraint(pspec.lo, type="full_investment")
+pspec.lo <- add.constraint(pspec.lo, type="long_only")
+# Specification 3
+pspec.lo <- add.objective(portfolio=pspec.lo, type="return", name="mean")
+pspec.lo <- add.objective(portfolio=pspec.lo, type="risk", name="var")
+```
+
+
+
 ```{r optimise-ports, exercise=TRUE, exercise.setup="create-xts-obj"}
 registerDoSEQ()
-pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
 opt.ordinary <- optimize.portfolio.rebalancing(
   ftse_r_m_ts,pspec.lo, 
   optimize_method="ROI",
   rebalance_on='months',
   training_period=30,
   trailing_periods=30)
-```
 
-```{r}
-foreach::registerDoSEQ()
 system.time(
   opt.rmt <-optimize.portfolio.rebalancing(
   ftse_r_m_ts, pspec.lo,
@@ -280,11 +298,20 @@ system.time(
 
 ### Backtest results analysis
 
+```{r backtest-rtns-setup}
+ati::ftse25_rtns_mthly->ftse_r_m 
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+```
+
+
+
 ```{r backtest-rtns,exercise=TRUE,exercise.setup="optimise-ports"}
 ordinary.wts <- na.omit(extractWeights(opt.ordinary))
 rmt.wts <- na.omit(extractWeights(opt.rmt))
+
 ordinary <- Return.rebalancing(R=ftse_r_m_ts,weights=ordinary.wts)
 rmt <- Return.rebalancing(R=ftse_r_m_ts,weights=rmt.wts)
+
 rmt.strat.rets <- merge.xts(ordinary,rmt)
 colnames(rmt.strat.rets) <- c("ordinary", "rmt")
 ```

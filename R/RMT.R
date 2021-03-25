@@ -147,6 +147,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
     # convert correlation to covariance matrix and return
     clean.S <- D^0.5 %*% clean.C %*% D^0.5
     colnames(clean.S)<-Nams
+    rownames(clean.S)<-Nams
     fit <- list(cov = clean.S, Q = Q, var = sigma.sq, eigVals = lambdas,
                 eigVals.cleaned = lambdas.cleaned, lambdascutoff = lambda.max)
     class(fit) <- "RMT"
@@ -156,6 +157,7 @@ estRMT <- function(R, Q =NA, cutoff = c("max", "each"),
   # convert correlation to covariance matrix and return
   clean.S <- D^0.5 %*% clean.C %*% D^0.5
   colnames(clean.S)<-Nams
+  rownames(clean.S)<-Nams
   fit <- list(cov = clean.S, Q = Q, var = sigma.sq, eigVals = lambdas,
               eigVals.cleaned = lambdas.cleaned, lambdascutoff = lambda.max)
 
