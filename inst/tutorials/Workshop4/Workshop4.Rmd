@@ -6,7 +6,8 @@ output:
 description: "Learn how to optimise a portfolio in terms of portfolio theory, then then how to denoise and detone a empirical correlation matrix and build a profitable investment strategy"
 runtime: shiny_prerendered
 ---
-Set up code
+## Set up
+
 ```{r excercisesetup, include=FALSE}
 library(learnr)
 library(PortfolioAnalytics)
@@ -158,24 +159,17 @@ model<-estRMT(ftse_r_m_ts)
 ### Estimate the covariance of the ftse returns before the denoising and compare with the model results using `heatmap()`
 
 ```{r compare-setup}
-ati::
-  group_by(ticker) %>%
-  tq_transmute(select = Price,
-               mutate_fun = monthlyReturn) %>%
-  pivot_wider(names_from=ticker,
-              values_from=monthly.returns)->ftse_r_m
+ati::ftse25_rtns_mthly ->ftse_r_m
 ```
 
 
 ```{r compare,exercise=TRUE,exercise.setup="estrmt"}
 cov_denoise<-model$cov 
 cov_raw<-cov(ftse_r_m[,-1])
-colnames(cov_denoise)<-colnames(cov_raw)
-rownames(cov_denoise)<-rownames(cov_raw)
 heatmap(cov_raw); heatmap(cov_denoise)
 ```
 
-As we can see, the main diagonal hasn’t changed, but the other covariances are different. This means that the algorithm has affected those eigenvalues of the correlation matrix which have more noise associated with them.
+As we can see, the main diagonal has not changed, but the other covariances are different. This means that the algorithm has affected those eigenvalues of the correlation matrix which have more noise associated with them.
 
 ## Topic 3 Detoning
 De-noised correlation matrix from the previous methods can also be de-toned by excluding a number of first eigenvectors representing the market component. According to Marcos Lopez de Prado (2020)
@@ -199,25 +193,16 @@ One can apply de-toning to the covariance matrix by setting the detone parameter
 ### Detoning the previously denoised covariance and visualise a before and after comparison
 
 ```{r compare-detone-setup}
-ftse350 %>%
-  select(-Name) %>%
-  spread(variable,value) %>%
-  filter(ticker %in% tickers) %>%
-  group_by(ticker) %>%
-  tq_transmute(select = Price,
-               mutate_fun = monthlyReturn) %>%
-  pivot_wider(names_from=ticker,
-              values_from=monthly.returns)->ftse_r_m
-cov_raw<-cov(ftse_r_m[,-1])
+ati::ftse25_rtns_mthly->ftse_r_m 
+ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
+model<-estRMT(ftse_r_m_ts)
+cov_denoise<-model$cov
 ```
 
 
-```{r compare-detone,exercise=TRUE,exercise-setup="create-xts-obj"}
+```{r compare-detone,exercise=TRUE,exercise.setup="create-xts-obj"}
 model1<-estRMT(ftse_r_m_ts,detone = TRUE)
 model1$cov -> cov_detone
-colnames(cov_detone)<-colnames(cov_raw)
-rownames(cov_detone)<-rownames(cov_raw)
-
 heatmap(cov_denoise,main ="Simple Covariance");heatmap(cov_detone,main = "Detoned Covariance")
 ```
 The results of de-toning are significantly different from the de-noising results. Notice how the axis labels have shifted. This indicates that the deleted market component had an effect on the covariance between elements.
@@ -230,7 +215,7 @@ The major workhorse of this chapter is the `portfolioAnalytics`package developed
 ### Construct a custom moment function
 Assume no third/fourth order effects.
 
-```{r rmtcustommoment}
+```{r rmtcustommoment, exercise=TRUE}
 custom.portfolio.moments <- function(R, portfolio) {
   momentargs<-list()
   momentargs$mu<-matrix(as.vector(apply(R,2, "mean")), ncol = 1)
@@ -248,7 +233,7 @@ Use the package `PortfolioAnalytics` we will construct a portfolio with the foll
   3. Set the objective to maximize the quadratic utility which maximizes returns while controlling for risk. 
   
 
-```{r rmtportfoliospec}
+```{r rmtportfoliospec, exercise=TRUE, exercise.setup="create-xts-obj"}
 pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
 # Specification 1 and 2
 pspec.lo <- add.constraint(pspec.lo, type="full_investment")
@@ -269,8 +254,9 @@ foreach::registerDoSEQ()
 
 ### Backtest strategy analysis run
 
-```{r ordinaryport}
+```{r optimise-ports, exercise=TRUE, exercise.setup="create-xts-obj"}
 registerDoSEQ()
+pspec.lo <- portfolio.spec(assets = colnames(ftse_r_m_ts))
 opt.ordinary <- optimize.portfolio.rebalancing(
   ftse_r_m_ts,pspec.lo, 
   optimize_method="ROI",
@@ -279,8 +265,8 @@ opt.ordinary <- optimize.portfolio.rebalancing(
   trailing_periods=30)
 ```
 
-```{r rmtport}
-registerDoSEQ()
+```{r}
+foreach::registerDoSEQ()
 system.time(
   opt.rmt <-optimize.portfolio.rebalancing(
   ftse_r_m_ts, pspec.lo,
@@ -292,16 +278,11 @@ system.time(
 )
 ```
 
-
 ### Backtest results analysis
 
-```{r rmtresults1}
+```{r backtest-rtns,exercise=TRUE,exercise.setup="optimise-ports"}
 ordinary.wts <- na.omit(extractWeights(opt.ordinary))
 rmt.wts <- na.omit(extractWeights(opt.rmt))
-```
-
-
-```{r rmtresults2}
 ordinary <- Return.rebalancing(R=ftse_r_m_ts,weights=ordinary.wts)
 rmt <- Return.rebalancing(R=ftse_r_m_ts,weights=rmt.wts)
 rmt.strat.rets <- merge.xts(ordinary,rmt)
@@ -309,7 +290,7 @@ colnames(rmt.strat.rets) <- c("ordinary", "rmt")
 ```
 
 Chart the results
-```{r chart}
+```{r chart, exercise=TRUE,exercise.setup="backtest-rtns"}
 charts.PerformanceSummary(rmt.strat.rets,
                           wealth.index = T,
                           colorset = c("red","darkgrey"),
@@ -320,9 +301,7 @@ charts.PerformanceSummary(rmt.strat.rets,
 
 ### Interpret your results
 
-```{r inference}
-print("There is clear evidence that a denoised portfolio which is rebalanced monthly performs much better than a portfolio which is optimised on the ordinary returns. While both cumulative returns follow a similar time series path, the denoised portfolio returns experience much less drawdown than the ordinary returns portfolio.")
-```
+>This is clear evidence that a denoised portfolio which is rebalanced monthly performs better than a portfolio which is optimised on the ordinary **noisy** returns. While both cumulative returns follow a similar time series path, the denoised portfolio returns experience much less drawdown than the ordinary returns portfolio.
 
 ## References
 Peterson, Brian G., and Peter Carl. 2018. PortfolioAnalytics: Portfolio Analysis, Including Numerical Methods for Optimization of Portfolios. https://github.com/braverock/PortfolioAnalytics.
