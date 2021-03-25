@@ -15,10 +15,9 @@ knitr::opts_chunk$set(
 
 # ati
 
-<!-- badges: start -->
-<!-- badges: end -->
+<img src="inst/figures/imgfile.png" >
 
-The goal of ati is to help student learning about financial machine learning and its application to algorithmic trading and investment.
+The goal of ati is to learning about the emerging field of financial machine learning and its application to algorithmic trading and investment.
 
 This package contains templates for reports, and functions and workshops using in [*Algorithmic trading and investment*](https://canvas.qub.ac.uk/courses/11744)) taught by [Barry Quinn](https://quinference.com/) inb Queen's Management School. 
 
@@ -60,21 +59,29 @@ This should bring up a tutorial in your default web browser. You can see the ful
 learnr::run_tutorial(package = "ati")
 ```
 
+
 ## Critical Essay
 This package also includes a RMarkdown template for use in the critical essay assessment.
 Go to File>New>R Markdown... and choose from `From Template` then `Report`.
 
 ## Datasets
-### Top 30 ftse companies
-This package also includes monthly returns for the Top 30 FTSE companies.  You can access this data by running the following
+### FTSE 350 data
+The package includes point in time FTSE350 data from 2016-2020, downloaded from Refinitiv Datastream for teaching purposes only. The data has been used to create two return series
+1. A point in time Top 25 by average market value returns series
+2. A current Top 30 by market capitalisation returns series
+
 
 ``` r
+ati::ftse350
 ati::ftse30_returns_mthly
+ati::ftse25_rtns_mthly
 ```
 ### Daily uk asset pricing risk factors
+These are created by Essex university business school and downloaded from UK Data Service API.
 
 ```r
-data("daily_factors")
+ati::daily_factors"
 ```
+
 
 

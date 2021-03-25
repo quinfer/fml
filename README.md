@@ -3,12 +3,11 @@
 
 # ati
 
-<!-- badges: start -->
+<img src="inst/figures/imgfile.png" >
 
-<!-- badges: end -->
-
-The goal of ati is to help student learning about financial machine
-learning and its application to algorithmic trading and investment.
+The goal of ati is to learning about the emerging field of financial
+machine learning and its application to algorithmic trading and
+investment.
 
 This package contains templates for reports, and functions and workshops
 using in [*Algorithmic trading and
@@ -32,8 +31,8 @@ This is a basic example which shows you how to solve a common problem:
 library(ati)
 library(tidyverse)
 #> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
-#> ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
-#> ✓ tibble  3.0.6     ✓ dplyr   1.0.3
+#> ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+#> ✓ tibble  3.1.0     ✓ dplyr   1.0.5
 #> ✓ tidyr   1.1.2     ✓ stringr 1.4.0
 #> ✓ readr   1.4.0     ✓ forcats 0.5.0
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
@@ -98,17 +97,25 @@ Template` then `Report`.
 
 ## Datasets
 
-### Top 30 ftse companies
+### FTSE 350 data
 
-This package also includes monthly returns for the Top 30 FTSE
-companies. You can access this data by running the following
+The package includes point in time FTSE350 data from 2016-2020,
+downloaded from Refinitiv Datastream for teaching purposes only. The
+data has been used to create two return series 1. A point in time Top 25
+by average market value returns series 2. A current Top 30 by market
+capitalisation returns series
 
 ``` r
+ati::ftse350
 ati::ftse30_returns_mthly
+ati::ftse25_rtns_mthly
 ```
 
 ### Daily uk asset pricing risk factors
 
+These are created by Essex university business school and downloaded
+from UK Data Service API.
+
 ``` r
-data("daily_factors")
+ati::daily_factors"
 ```
