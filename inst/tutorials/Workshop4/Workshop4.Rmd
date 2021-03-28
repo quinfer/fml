@@ -255,6 +255,7 @@ foreach::registerDoSEQ()
 ### Backtest strategy analysis run
 
 ```{r optimise-ports-setup}
+library(timetk)
 ati::ftse25_rtns_mthly->ftse_r_m 
 ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 custom.portfolio.moments <- function(R, portfolio) {
