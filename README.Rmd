@@ -13,9 +13,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-# ati
+# Algorithmic trading and investment
 
-<img src="inst/figures/imgfile.png" >
+<img src="inst/figures/imgfile.png" width="10%" style="inline">
 
 The goal of ati is to learning about the emerging field of financial machine learning and its application to algorithmic trading and investment.
 
@@ -23,12 +23,14 @@ This package contains templates for reports, and functions and workshops using i
 
 ## Installation
 
-And the development version from [GitHub](https://github.com/) with:
+Install/or reinstall the package from [GitHub](https://github.com/) using the following.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("barryquinn1/ati")
+remove.packages('ati')
+.rs.restartR()
+remotes::install_github("barryquinn1/ati")
 ```
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:

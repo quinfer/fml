@@ -6,22 +6,22 @@
   --color-black: #1a1917; /* black */
 }
 
-.large { 
+.large {
   font-size: 160%;
 }
-.small { 
+.small {
   font-size:70%;
 }
 
 .salt {
   color: var(--color-salt);
-  font-size: 200%; 
+  font-size: 200%;
   font-weight:700;
 }
 
 .fat {
   color: var(--color-fat);
-  font-size: 200%; 
+  font-size: 200%;
   font-weight:700;
 }
 
@@ -120,7 +120,7 @@ ol li::before {
 }
 
 .title-slide h2, .title-slide h3 {
-  color: #e7e8e2; 
+  color: #e7e8e2;
   line-height: 1.5em;
 }
 .title-slide .remark-slide-number {
@@ -131,7 +131,7 @@ ol li::before {
 
 
 /* links */
-					 
+
 a,
 a:visited {
   color: var(--color-black);
@@ -163,8 +163,8 @@ a > code {
 /* from the hygge css! */
 
 .polaroid img {
-    display: block; 
-    width: inherit; 
+    display: block;
+    width: inherit;
     border: 10px solid #fff;
     border-bottom: 45px solid #fff;
     -webkit-box-shadow: 3px 3px 3px #111;
@@ -205,8 +205,8 @@ img.circle {
 /* split rows*/
 
 
-.title-slide .remark-slide-number { 
-  display: none; 
+.title-slide .remark-slide-number {
+  display: none;
 }
 
 .wrapper {
@@ -214,7 +214,7 @@ img.circle {
   width: 100vw;
   height: 100vh;
   place-items: center;
-  place-content: center;	
+  place-content: center;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
 }
@@ -299,7 +299,7 @@ blockquote, .blockquote {
 }
 
 /*************************
-  Custom classes 
+  Custom classes
 **************************/
 
 /* Glow text class
@@ -307,7 +307,7 @@ https://www.w3schools.com/howto/howto_css_glowing_text.asp
 */
 
 .glow {
-  font-size: 200%; 
+  font-size: 200%;
   font-weight:700;
   color: #fff;
   text-align: center;
@@ -365,7 +365,7 @@ https://www.w3schools.com/howto/howto_css_glowing_text.asp
 /******************
  * Coloured content boxes
  ****************/
-.content-box { 
+.content-box {
     box-sizing: border-box;
     background-color: #e2e2e2;
 }
@@ -376,7 +376,7 @@ https://www.w3schools.com/howto/howto_css_glowing_text.asp
 .content-box-green,
 .content-box-purple,
 .content-box-red,
-.content-box-yellow {
+.content-box-yellow cby {
   box-sizing: border-box;
   border-radius: 15px;
   margin: 0 0 15px;
@@ -400,7 +400,7 @@ https://www.w3schools.com/howto/howto_css_glowing_text.asp
 .content-box-green .remark-inline-code,
 .content-box-purple .remark-inline-code,
 .content-box-red .remark-inline-code,
-.content-box-yellow .remark-inline-code { 
+.content-box-yellow .remark-inline-code {
   background: none;
 }
 

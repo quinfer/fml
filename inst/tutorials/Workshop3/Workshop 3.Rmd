@@ -8,50 +8,66 @@ description: "Learn how using an algorithm to optimise the risk and return of a 
 ---
 
 ```{r excercise setup, include=FALSE}
+library(shiny)
+library(learnr)
 library(PortfolioAnalytics)
 library(tidyverse)
 library(tidyquant)
+library(fontawesome)
+library(RColorBrewer)
 library(CLA)
-knitr::opts_chunk$set(error = FALSE, exercise=TRUE)
-library(learnr)
 library(ati)
-tutorial_options(exercise.timelimit = 60, exercise.eval=TRUE)
+tutorial_options(exercise.timelimit = 60)
+knitr::opts_chunk$set(error = FALSE)
+tutorial_options(exercise.eval = TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning=FALSE, message=FALSE)
+
 ```
 
-> Before you begin, run the following to update the packages. The install.packages command may not be necessary depending on your local `R libs`.
+```{r setup,include=FALSE}
+#Ex1
+Top30<-ati::ftse30_returns_mthly
+Top30tickers<-unique(Top30$symbol)
+#Ex2
+tidyquant::tq_get(Top30tickers,from="2020-01-01")->Top30prices
+#Ex3
+Top30r<-Top30prices %>%
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted,
+               mutate_fun = periodReturn,
+               period="monthly",
+               col_rename = "Rtn")
+Top30r %>% 
+  summarise(mu=mean(Rtn)) ->mu
+Top30r %>% 
+  spread(symbol,Rtn) %>%
+  select(-date) %>% cov(use = "complete")->covar
+CLftseTop30<-CLA(mu$mu,covar=covar,lB = 0,uB = 1/10)
 
 ```
-remove.packages('ati')
-remotes::install_github('barryquinn1/ati')
-remove.packages('tsfe')
-remotes::install_github('barryquinn1/tsfe')
-remotes::install_github('rstudio/learnr')
-install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog"))
-.rs.restartR()
-```
 
-## Welcome
+
+## Introduction
 
 In this tutorial, you will learn some portfolio analytics
 
-* Read in excel files using `readxl`
-* Import data from the web using `tidyqaunt`
+* Import data from the web using `tidyqaunt` (pre-load for those unable to access yahoo finance)
 * Calculate monthly returns from daily data
 * Calculate the mean of covariance of a portfolio of monthly returns 
 * Portfolio optimisation using 'Markowitz` Critical Line Algorithm 
 
-## Introduction
+
+### Background
 Portfolio construction is perhaps the most recurrent financial problem.  On a daily basis, investment managers must build portfolios that incorporate their views and forecasts on risks and returns.  This is the primordial question that 24-yr-old Harry Markowitz attempted to answer more than six decades ago.  His monumental insight was to recognise that various levels of risk are associated with different optimal portfolios in terms of risk-adjusted returns, hence the notion of the **Efficient Frontier** [Markowitz (1952)](https://shibbolethsp.jstor.org/start?entityID=https%3A%2F%2Fqub.ac.uk%2Fshibboleth&dest=https://www.jstor.org/stable/2975974&site=jstor)
 
 **One practical implication is that it is rarely optimal to allocate all assets to the investments with the highest expected returns.  Instead, we should take into account the correlations across alternative investments in order to build a diversified portfolio.  Portfolio diversification is still the key to success in investment management**.  
 
-
 > If you buy shares in an umbrella company and a maker of sunglasses, you will be fine in all weathers `r tufte::quote_footer("Messy by Tim Harford")`
 
-## CLA alogirithm
+### CLA alogirithm
 Before earning his PhD in 1954, Markowitz left academia to work at the RAND corporation, where he developed the Critical Line Algorithm.  CLA is a quadratic optimisation procedure specifically designed for inequality-constrained portfolio optimisation problems.  The beauty of this algorithm is that it guarantees that the exact solution is found after a known number of iterations.  Surprisingly, most financial practitioners still seem unaware of CLA, as they often rely on generic-purpose quadratic programming methods that do not guarantee the correction solution or a stopping time.
 
-## The optimisation problem
+### The optimisation problem
 
 In Modern Portfolio Theory, this operation consists in computing the Efficient Frontier, defined as the set of portfolios that yield the highest achievable mean excess return (in excess of the risk-free rate) for any given level of risk(measured in terms of standard deviation).
 This portfolio optimization problem receives two equivalent formulations:
@@ -63,65 +79,87 @@ This portfolio optimization problem receives two equivalent formulations:
 ### The mathematical challenge
 Most practitioners are routinely faced with the problem of optimizing a portfolio subject to inequality conditions (a lower and an upper bound for each portfolio weight) and an equality condition (that the weights add up to one). There is no analytic solution to this problem, and an optimization algorithm must be used. Markowitz developed a method for computing such a solution, which he named the “critical line algorithm”or CLA.
 
-### Real world application of Critical Line Algo
+## Data preprocessing
 In this exercise we will using the Top 30 FTSE holdings monthly returns to find the minimum variance portfolio that would maximise the return over the last year.
 
-### Data loading (optional)
+### load data
 
-Firstly, I loaded the list of top 30 holdings into R [Top 30 holdings](https://uk.finance.yahoo.com/quote/%5EFTSE/components?p=%5EFTSE) and save the output to an object named `Top30`. Then create a character vector of the tickers.
+>Firstly, I loaded the list of top 30 holdings into R [Top 30 holdings](https://uk.finance.yahoo.com/quote/%5EFTSE/components?p=%5EFTSE) and save the output to an object named `Top30`. Then create a character vector of the tickers.
 
-Using `tidyquant` download the top 30 holdings in the FTSE 100 by volume from the start of 2020. 
-    
+```{r CLA1, exercise = TRUE}
+Top30 %>% glimpse()
 ```
+
+
+```{r CLA1-solution}
+Top30tickers<-Top30$Symbol
+```
+
+
+### Load online data
+
+>Using `tidyquant` download the top 30 holdings in the FTSE 100 by volume from the start of 2020. 
+    
+```{r CLA2, exercise = TRUE, exercise.eval=FALSE}
 tq_get(Top30tickers,from="2020-01-01")
 ```
 
 **For those students who cannot access yahoo finance, the dataset `Top30prices` is pre-loaded in this tutorial**
 
-### monthly returns from daily prices
+```{r CLA2-solution}
+tq_get(Top30tickers,from="2020-01-01")->Top30prices
+```
+    
 
-Using `tidyquant::tq_transmute` to convert the adjust closing price to a monthly return.  Name the output `ftse30_return_mthly` 
+### Monthly returns
+
+>Using `tidyquant::tq_transmute` to convert the adjust closing price to a monthly return.  Name the output `Top30r` 
 
     
-```{r returns}
-ati::Top30prices %>%
+```{r CLA3, exercise = TRUE}
+
+```
+
+```{r CLA3-solution}
+Top30r<-Top30prices %>%
   group_by(symbol) %>%
   tq_transmute(select = adjusted,
                mutate_fun = periodReturn,
                period="monthly",
-               col_rename = "Rtn")->ftse30_returns_mthly
+               col_rename = "Rtn")
+```
+    
+
+## Using CLA
+Now it is time to using the CLA to optimise our quadratic problem. Firstly, we need to compute a mean vector and a covariance matrix using time-homogeneous invariant i.e., phenomena that repeat themselves identically through history regardless of the reference time at which an observation is made. Fortunately, compounded returns are generally accepted as good time-homogeneous invariant for equities. 
+
+### Mean and covariance calculation
+
+From your `Top20r` data calculate the mean return for each stock and the covariance.  Store the mean values in a vector named `mu` and the covariance in a matrix named `covar`.
+
+```{r CLA4, exercise = TRUE,exercise.eval=FALSE}
+Top30r %>% 
+  summarise(mu=mean(Rtn))
 ```
 
-
->Now it is time to using the CLA to optimise our quadratic problem. Firstly, we need to compute a mean vector and a covariance matrix using time-homogenous invariant i.e., phenomena that repeat themselves identically through history regardless of the reference time at which an observation is made. Fortunately, compounded returns are generally accepted as good time-homogeneous invariant for equities. 
-
-### CLA algorithm setup
-
-From your returns data calculate the mean return for each stock and the covariance.  Store the mean values in a vector named `mu` and the covariance in a matrix named `covar`.
-
-
-```{r CLA}
-ftse30_returns_mthly %>% 
+```{r CLA4-solution}
+Top30r %>% 
   summarise(mu=mean(Rtn)) ->mu
-ftse30_returns_mthly %>% 
+Top30r %>% 
   spread(symbol,Rtn) %>%
   select(-date) %>% cov(use = "complete")->covar
 ```
 **using help(spread) to understand what this function does**
 
-### CLA estimation
+### Use CLA algo
 
-Finally, let us compute the efficient frontier using the Markowitz's CLA.  For convenience we will use `CLA` package which is preloaded.  This package is base on the [Bailey and Lopez de Prado (2013) publication](https://www.mdpi.com/1999-4893/6/1/169) reimagined in pure `R` code.  
+>Compute the efficient frontier using the Markowitz's CLA.  For convenience we will use `CLA` package which is preloaded.  This package is base on the [Bailey and Lopez de Prado (2013) publication](https://www.mdpi.com/1999-4893/6/1/169).  
 
 The main function in this package `CLA()` with takes as its first two arguments the mean and covariance matrix of the returns.  With the results object plot the efficient frontier. Run the code to get the optimised frontier.
 
-Then plot the results.
+>Then plot the results.
 
-
-```{r CLA5}
+```{r CLA5, exercise=TRUE}
 CLftseTop30<-CLA(mu$mu,covar=covar,lB = 0,uB = 1/10)
-```
-
-```{r CLA6}
 plot(CLftseTop30,xlab ="Expected Risk",ylab = "Expected Return") 
 ```

@@ -1,9 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ati
+# Algorithmic trading and investment
 
-<img src="inst/figures/imgfile.png" >
+<img src="inst/figures/imgfile.png" width="10%" style="inline">
 
 The goal of ati is to learning about the emerging field of financial
 machine learning and its application to algorithmic trading and
@@ -16,11 +16,13 @@ Quinn](https://quinference.com/) inb Queen’s Management School.
 
 ## Installation
 
-And the development version from [GitHub](https://github.com/) with:
+Install/or reinstall the package from [GitHub](https://github.com/)
+using the following.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("barryquinn1/ati")
+remove.packages('ati')
+.rs.restartR()
+remotes::install_github("barryquinn1/ati")
 ```
 
 ## Example
@@ -32,7 +34,7 @@ library(ati)
 library(tidyverse)
 #> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
 #> ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-#> ✓ tibble  3.1.0     ✓ dplyr   1.0.5
+#> ✓ tibble  3.1.1     ✓ dplyr   1.0.5
 #> ✓ tidyr   1.1.2     ✓ stringr 1.4.0
 #> ✓ readr   1.4.0     ✓ forcats 0.5.0
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
