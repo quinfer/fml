@@ -4,7 +4,7 @@
 \name{ati-package}
 \alias{ati}
 \alias{ati-package}
-\title{ati: learning and teaching algorithmic trading and investment}
+\title{ati: Algorithmic Trading and Investment}
 \description{
 Package uses financial machine learning illustrate modern algorithmic trading and investment practices.
 }

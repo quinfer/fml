@@ -1,6 +1,6 @@
 Package: ati
-Title: learning and teaching algorithmic trading and investment
-Version: 0.0.0.9005
+Title: Algorithmic Trading and Investment
+Version: 1.0.0
 Authors@R: 
     person(given = "Barry",
            family = "Quinn",
