@@ -5,7 +5,7 @@
 
 <img src="inst/figures/imgfile.png" width="10%" style="inline">
 
-The goal of ati is to learning about the emerging field of financial
+The goal of ati is to learn about the emerging field of financial
 machine learning and its application to algorithmic trading and
 investment.
 
