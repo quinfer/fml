@@ -10,8 +10,8 @@ machine learning and its application to algorithmic trading and
 investment.
 
 This package contains templates for reports, and functions and workshops
-using in [*Algorithmic trading and
-investment*](https://canvas.qub.ac.uk/courses/11744)) taught by [Barry
+using in [Algorithmic trading and
+investment](https://canvas.qub.ac.uk/courses/11744) taught by [Barry
 Quinn](https://quinference.com/) in the Queen’s Management School.
 
 ## Installation
