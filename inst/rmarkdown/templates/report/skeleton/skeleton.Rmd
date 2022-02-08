@@ -2,7 +2,7 @@
 title: "Untitled"
 author: "Student name"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-bibliograph: "refs.bib"
+bibliography: "refs.bib"
 nocite: "@*"
 output:
    pdf_document:
@@ -36,8 +36,8 @@ This should be introduce the statement to be critiqued in the context of modern 
 Use high-quality literature to illustrate the pros and cons of the argument. 
 
 Some examples of how to use the `.bib` to add references
-* In line `@Jensen2021` renders as Jensen (2021)
-* And `[@Jensen]` renders as (Jensen 2021)
+- In line `@Jensen2021` renders as Jensen (2021)
+-  And `[@Jensen]` renders as (Jensen 2021)
 
 ## Experimental evidence
 
