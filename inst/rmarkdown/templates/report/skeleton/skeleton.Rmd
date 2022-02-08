@@ -2,11 +2,12 @@
 title: "Untitled"
 author: "Student name"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-bibliograph: ["refs.bib"]
+bibliograph: "refs.bib"
+nocite: "@*"
 output:
-   bookdown::pdf_document2:
-     toc: true
-
+   pdf_document:
+    toc: true
+    
 ---
 
 ```{r setup, include=FALSE}
