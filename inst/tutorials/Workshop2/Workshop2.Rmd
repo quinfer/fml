@@ -10,7 +10,7 @@ code_download: true
 ---
 
 ```{r excercise setup, include=FALSE}
-library(ati)
+library(fml)
 library(PortfolioAnalytics)
 library(matlab)
 library(corrplot)
@@ -67,7 +67,7 @@ library(fontawesome)
 library(corrplot)
 library(RColorBrewer)
 library(skimr)
-library(ati)
+library(fml)
 ```
 
 ## Git integration

@@ -15,7 +15,7 @@ library(ROI)
 library(ROI.plugin.quadprog)
 library(tidyverse)
 library(tidyquant)
-library(ati)
+library(fml)
 library(timetk)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE,warning=FALSE)
@@ -33,7 +33,7 @@ library(ROI)
 library(ROI.plugin.quadprog)
 library(tidyverse)
 library(tidyquant)
-library(ati)
+library(fml)
 library(timetk)
 tutorial_options(exercise.eval = TRUE)
 knitr::opts_chunk$set(error = TRUE, echo = TRUE,warning=FALSE, exercise=TRUE)
@@ -43,8 +43,8 @@ registerDoSEQ()
 > Before you begin, run the following to update the packages. The install.packages command may not be necessary depending on your local `R libs`.
 
 ```
-remove.packages('ati')
-remotes::install_github('barryquinn1/ati')
+remove.packages('fml')
+remotes::install_github('barryquinn1/fml')
 remotes::install_github('rstudio/learnr')
 install.packages(c("foreach","iterators",'quadprog',"ROI","ROI.plugin.quadprog"))
 .rs.restartR()
@@ -102,7 +102,7 @@ In this tutorial, you will learn some portfolio analytics
 A first step would be to rearrange the data to that price and market value are variables
 ```{r tickers-setup}
 # Data and covariance objects
-ftse350<-ati::ftse350 
+ftse350<-fml::ftse350 
 ftse350 %>%
   select(-Name) %>%
   spread(variable,value) %>%
@@ -159,7 +159,7 @@ model<-estRMT(ftse_r_m_ts)
 ### Estimate the covariance of the ftse returns before the denoising and compare with the model results using `heatmap()`
 
 ```{r compare-setup}
-ati::ftse25_rtns_mthly ->ftse_r_m
+fml::ftse25_rtns_mthly ->ftse_r_m
 ```
 
 
@@ -193,7 +193,7 @@ One can apply de-toning to the covariance matrix by setting the detone parameter
 ### Detoning the previously denoised covariance and visualise a before and after comparison
 
 ```{r compare-detone-setup}
-ati::ftse25_rtns_mthly->ftse_r_m 
+fml::ftse25_rtns_mthly->ftse_r_m 
 ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 model<-estRMT(ftse_r_m_ts)
 cov_denoise<-model$cov
@@ -256,7 +256,7 @@ foreach::registerDoSEQ()
 
 ```{r optimise-ports-setup}
 library(timetk)
-ati::ftse25_rtns_mthly->ftse_r_m 
+fml::ftse25_rtns_mthly->ftse_r_m 
 ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 custom.portfolio.moments <- function(R, portfolio) {
   momentargs<-list()
@@ -300,7 +300,7 @@ system.time(
 ### Backtest results analysis
 
 ```{r backtest-rtns-setup}
-ati::ftse25_rtns_mthly->ftse_r_m 
+fml::ftse25_rtns_mthly->ftse_r_m 
 ftse_r_m %>% tk_xts(silent = TRUE)->ftse_r_m_ts
 ```
 

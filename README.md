@@ -1,18 +1,18 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Algorithmic trading and investment
+# Financial machine learning
 
 <img src="inst/figures/imgfile.png" width="10%" style="inline">
 
-The goal of ati is to learn about the emerging field of financial
+The goal of fml is to learning about the emerging field of financial
 machine learning and its application to algorithmic trading and
 investment.
 
 This package contains templates for reports, and functions and workshops
-using in [Algorithmic trading and
-investment](https://canvas.qub.ac.uk/courses/11744) taught by [Barry
-Quinn](https://quinference.com/) in the Queen’s Management School.
+using in [*Algorithmic trading and
+investment*](https://canvas.qub.ac.uk/courses/11744)) taught by [Barry
+Quinn](https://quinference.com/) inb Queen’s Management School.
 
 ## Installation
 
@@ -20,9 +20,9 @@ Install/or reinstall the package from [GitHub](https://github.com/)
 using the following.
 
 ``` r
-remove.packages('ati')
+remove.packages('fml')
 .rs.restartR()
-remotes::install_github("barryquinn1/ati")
+remotes::install_github("quinfer/fml")
 ```
 
 ## Example
@@ -30,18 +30,18 @@ remotes::install_github("barryquinn1/ati")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(ati)
+library(fml)
 library(tidyverse)
-#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
-#> ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-#> ✓ tibble  3.1.1     ✓ dplyr   1.0.5
-#> ✓ tidyr   1.1.2     ✓ stringr 1.4.0
-#> ✓ readr   1.4.0     ✓ forcats 0.5.0
+#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+#> ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+#> ✓ tibble  3.1.6     ✓ dplyr   1.0.7
+#> ✓ tidyr   1.1.4     ✓ stringr 1.4.0
+#> ✓ readr   2.1.1     ✓ forcats 0.5.1
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 ## basic example code
-ati::daily_factors %>% summary()
+fml::daily_factors %>% summary()
 #>       date                  rm                   rf           
 #>  Min.   :1988-10-03   Min.   :-0.0834130   Min.   :0.0000000  
 #>  1st Qu.:1996-01-23   1st Qu.:-0.0046057   1st Qu.:0.0000210  
@@ -68,7 +68,7 @@ ati::daily_factors %>% summary()
 ## Function test
 
 ``` r
-?ati::estRMT()
+?fml::estRMT()
 ```
 
 ## Tutorials
@@ -81,21 +81,21 @@ started. Second, you can run any tutorial from the R console by typing
 the following line:
 
 ``` r
-learnr::run_tutorial("Workshop2","ati")
+learnr::run_tutorial("Workshop2","fml")
 ```
 
 This should bring up a tutorial in your default web browser. You can see
 the full list of tutorials by running:
 
 ``` r
-learnr::run_tutorial(package = "ati")
+learnr::run_tutorial(package = "fml")
 ```
 
 ## Critical Essay
 
 This package also includes a RMarkdown template for use in the critical
-essay assessment. Go to File\>New\>R Markdown… and choose from `From
-Template` then `Report`.
+essay assessment. Go to File>New>R Markdown… and choose from
+`From Template` then `Report`.
 
 ## Datasets
 
@@ -108,9 +108,9 @@ by average market value returns series 2. A current Top 30 by market
 capitalisation returns series
 
 ``` r
-ati::ftse350
-ati::ftse30_returns_mthly
-ati::ftse25_rtns_mthly
+fml::ftse350
+fml::ftse30_returns_mthly
+fml::ftse25_rtns_mthly
 ```
 
 ### Daily uk asset pricing risk factors
@@ -119,5 +119,5 @@ These are created by Essex university business school and downloaded
 from UK Data Service API.
 
 ``` r
-ati::daily_factors
+fml::daily_factors"
 ```
