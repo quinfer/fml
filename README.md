@@ -5,6 +5,7 @@
 
 <img src="inst/figures/imgfile.png" width="30%" style="inline">
 
+
 The goal of the `fml` package is to learning about the emerging field of financial
 machine learning and its applications in computer age econometrics.  This package contains templates for reports, and functions and workshops
 using in [*Algorithmic trading and
