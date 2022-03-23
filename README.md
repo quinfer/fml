@@ -6,8 +6,7 @@
 <img src="inst/figures/imgfile.png" width="10%" style="inline">
 
 The goal of fml is to learning about the emerging field of financial
-machine learning and its application to algorithmic trading and
-investment.
+machine learning and its applications in computer age econometrics.
 
 This package contains templates for reports, and functions and workshops
 using in [*Algorithmic trading and
