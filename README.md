@@ -5,11 +5,13 @@
 
 <img src="inst/figures/imgfile.png" width="10%" style="inline">
 
-The goal of fml is to learning about the emerging field of financial
+The goal of the `fml` package is to learning about the emerging field of financial
 machine learning and its applications in computer age econometrics.  This package contains templates for reports, and functions and workshops
 using in [*Algorithmic trading and
 investment*](https://canvas.qub.ac.uk/courses/11744)) taught by [Barry
 Quinn](https://quinference.com/) in [Queen’s Management School](https://pure.qub.ac.uk/en/persons/barry-quinn).
+
+The package os inspired by the fantastic work of [Marcos López de Prado](https://quantresearch.org), and his books entitled [Advances in Financial Machine Learning](https://www.wiley.com/en-gb/Advances+in+Financial+Machine+Learning-p-9781119482086) and [Machine learning for Asset Managers](https://www.cambridge.org/core/elements/abs/machine-learning-for-asset-managers/6D9211305EA2E425D33A9F38D0AE3545#). 
 
 ## Installation
 
