@@ -6,12 +6,10 @@
 <img src="inst/figures/imgfile.png" width="10%" style="inline">
 
 The goal of fml is to learning about the emerging field of financial
-machine learning and its applications in computer age econometrics.
-
-This package contains templates for reports, and functions and workshops
+machine learning and its applications in computer age econometrics.  This package contains templates for reports, and functions and workshops
 using in [*Algorithmic trading and
 investment*](https://canvas.qub.ac.uk/courses/11744)) taught by [Barry
-Quinn](https://quinference.com/) inb Queen’s Management School.
+Quinn](https://quinference.com/) in [Queen’s Management School](https://pure.qub.ac.uk/en/persons/barry-quinn).
 
 ## Installation
 
