@@ -1,0 +1,18 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Financial machine learning
+message: >-
+  This software is an R package which  provides some
+  tools to perform financial machine learning and
+  advanced analytics.
+type: software
+authors:
+  - name-particle: Barry
+    family-names: Quinn
+    name-suffix: PhD CStat
+    email: b.quinn@qub.ac.uk
+    affiliation: 'Queen’s Management School, Belfast'
+    orcid: 'https://orcid.org/0000-0002-8637-9060'
+  - {}
