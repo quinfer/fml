@@ -16,6 +16,7 @@ Quinn](https://quinference.com/) in [Queen’s Management School](https://pure.q
 Install/or reinstall the package from [GitHub](https://github.com/)
 using the following.
 
+
 ``` r
 remove.packages('fml')
 .rs.restartR()
