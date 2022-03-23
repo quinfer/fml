@@ -4,7 +4,7 @@
 # Financial machine learning
 
 <img src="inst/figures/imgfile.png" width="30%" style="inline">
-
+[![DOI](https://zenodo.org/badge/313573908.svg)](https://zenodo.org/badge/latestdoi/313573908)
 
 The goal of the `fml` package is to learning about the emerging field of financial
 machine learning and its applications in computer age econometrics.  This package contains templates for reports, and functions and workshops
