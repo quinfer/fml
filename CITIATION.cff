@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Quinn"
+  given-names: "Barry"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "Financial Machine Learning"
+version: 2.0.4
+doi: 10.5281/zenodo.6379925
+date-released: 2020-12-18
+url: "https://github.com/quinfer/fml"
