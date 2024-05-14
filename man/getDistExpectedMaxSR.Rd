@@ -4,12 +4,12 @@
 \alias{getDistExpectedMaxSR}
 \title{Maximum Sharpe Ratio Monte Carlo Simulator}
 \usage{
-getDistExpectedMaxSR(nSims, nTrails, meanSR = 0, stdSR = 1)
+getDistExpectedMaxSR(nSims, nTrials, meanSR = 0, stdSR = 1)
 }
 \arguments{
 \item{nSims}{number of simulations per trail}
 
-\item{nTrails}{a numeric vector of trails starting at 2}
+\item{nTrials}{a numeric vector of trails starting at 2}
 
 \item{meanSR}{mean value of Sharpe ratio under the null of a false positive strategy}
 
@@ -22,9 +22,9 @@ tibble
 Simulates the distribution of the expected Maximum Sharpe ratio for a set number of trails
 }
 \examples{
-sr1<-getDistExpectedMaxSR(nSims=100,nTrails=2:100)
-plot(y=sr1$`Max{SR}`,x=sr1$nTrails, col = scales::alpha('red', 0.4), pch=16)
-lines(lowess(x=sr1$nTrails,sr1$`Max{SR}`),col="blue")
+sr1<-getDistExpectedMaxSR(nSims=100,nTrials=2:100)
+plot(y=sr1$`Max{SR}`,x=sr1$nTrials, col = scales::alpha('red', 0.4), pch=16)
+lines(lowess(x=sr1$nTrials,sr1$`Max{SR}`),col="blue")
 }
 \references{
 Bailey, D., J. Borwein, M. López de Prado, and J. Zhu 2014: “Pseudo- mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance.” Notices of the American Mathematical Society, Vol. 61, No. 5, pp. 458–471. Available at http://ssrn.com/abstract=2308659
